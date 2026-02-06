@@ -29,7 +29,7 @@ def phi(v: torch.Tensor, Fc: float, vs: float) -> torch.Tensor:
 def f_inf(x_t: torch.Tensor, p: Params) -> torch.Tensor:
     """Infinity approximation dynamics in shifted coordinates x_t = (x1_tilde, x2)."""
     x1, x2 = x_t[:, 0], x_t[:, 1]
-    drag = p.a2 * torch.sqrt(smooth_abs(x2) + 1e-12) * x2
+    drag = p.a2 * smooth_abs(x2) * x2
     x2dot = -drag - p.a3 * (x1 ** 3)
     return torch.stack([x2, x2dot], dim=1)
 
@@ -37,7 +37,7 @@ def f_inf(x_t: torch.Tensor, p: Params) -> torch.Tensor:
 def f_full(x: torch.Tensor, p: Params) -> torch.Tensor:
     """Original dynamics in original coordinates x = (x1, x2)."""
     x1, x2 = x[:, 0], x[:, 1]
-    drag = p.a2 * torch.sqrt(smooth_abs(x2) + 1e-12) * x2
+    drag = p.a2 * smooth_abs(x2) * x2
     fric = phi(x2, p.Fc, p.vs)
     x2dot = -fric + p.a1 * (x1 - p.c1) - drag - p.a3 * ((x1 - p.c2) ** 3)
     return torch.stack([x2, x2dot], dim=1)
