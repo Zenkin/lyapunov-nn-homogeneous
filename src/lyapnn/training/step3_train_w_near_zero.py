@@ -219,6 +219,9 @@ def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
             "state_dict": model.state_dict(),
             "params": p.__dict__,
             "x_eq": x_eq,
+            "hidden": int(cfg.hidden),
+            "depth": int(cfg.depth),
+            "dtype": str(cfg.dtype),
             "args": {
                 "hidden": int(cfg.hidden),
                 "depth": int(cfg.depth),

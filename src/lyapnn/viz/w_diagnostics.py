@@ -59,8 +59,9 @@ def _load_tnet_ckpt(ckpt_path: str, device: torch.device, dtype: torch.dtype) ->
     if isinstance(data, dict) and ("model_state" in data or "state_dict" in data):
         sd = data.get("model_state", data.get("state_dict"))
         meta = {k: v for k, v in data.items() if k not in ("model_state", "state_dict")}
-        hidden = int(meta.get("hidden", 64))
-        depth = int(meta.get("depth", 2))
+        args = meta.get("args", {}) if isinstance(meta.get("args"), dict) else {}
+        hidden = int(meta.get("hidden", args.get("hidden", 64)))
+        depth = int(meta.get("depth", args.get("depth", 2)))
     else:
         sd = data
         hidden, depth = 64, 2

@@ -10,7 +10,7 @@ import torch
 import torch.optim as optim
 
 from lyapnn.systems.duffing_friction import Params, f_inf, equilibrium_x1
-from lyapnn.geometry.r12 import sample_Sr1
+from lyapnn.geometry.r12 import sample_Sr1, sample_box
 from lyapnn.models.homog_v import HomogV
 from lyapnn.training.derivatives import Vdot
 
@@ -30,6 +30,11 @@ class TrainCfg:
     lr: float = 2e-4
     log_every: int = 200
     normalize_margin: bool = True   # your V-scale stabilizer
+    sample_mode: str = "sr1"  # "sr1" | "box"
+    box_x1_min: float = -20.0
+    box_x1_max: float = 20.0
+    box_x2_min: float = -20.0
+    box_x2_max: float = 20.0
 
 
 def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV, Params, float]:
@@ -41,8 +46,15 @@ def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV,
     V = HomogV(mu=cfg.mu, eps=1e-3, hidden=cfg.hidden, depth=cfg.depth).to(dev)
     opt = optim.Adam(V.parameters(), lr=cfg.lr)
 
-    Xtr = torch.from_numpy(sample_Sr1(cfg.n_train, cfg.seed)).to(dev)
-    Xva = torch.from_numpy(sample_Sr1(cfg.n_val, cfg.seed + 1)).to(dev)
+    if cfg.sample_mode == "box":
+        Xtr_np = sample_box(cfg.n_train, cfg.box_x1_min, cfg.box_x1_max, cfg.box_x2_min, cfg.box_x2_max, cfg.seed)
+        Xva_np = sample_box(cfg.n_val, cfg.box_x1_min, cfg.box_x1_max, cfg.box_x2_min, cfg.box_x2_max, cfg.seed + 1)
+    else:
+        Xtr_np = sample_Sr1(cfg.n_train, cfg.seed)
+        Xva_np = sample_Sr1(cfg.n_val, cfg.seed + 1)
+
+    Xtr = torch.from_numpy(Xtr_np).to(dev)
+    Xva = torch.from_numpy(Xva_np).to(dev)
 
     best_state, best_viol = None, 1e9
 
@@ -80,7 +92,18 @@ def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV,
 
     if save_path:
         os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
-        torch.save({"state_dict": V.state_dict(), "meta": {"mu": cfg.mu, "alpha": cfg.alpha}}, save_path)
+        torch.save(
+            {
+                "state_dict": V.state_dict(),
+                "meta": {
+                    "mu": cfg.mu,
+                    "alpha": cfg.alpha,
+                    "hidden": cfg.hidden,
+                    "depth": cfg.depth,
+                },
+            },
+            save_path,
+        )
         print(f"[save] {save_path}")
 
     xeq = equilibrium_x1(p)
