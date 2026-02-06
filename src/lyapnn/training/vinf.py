@@ -1,22 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 import os
 import numpy as np
 import torch
 import torch.optim as optim
 
-from lyapnn.systems.duffing_friction import Params, f_inf, equilibrium_x1
-from lyapnn.geometry.r12 import sample_Sr1
+from lyapnn.geometry.r12 import sample_box
 from lyapnn.models.homog_v import HomogV
+from lyapnn.systems.duffing_friction import Params, f_inf, equilibrium_x1
 from lyapnn.training.derivatives import Vdot
 
 
 @dataclass
-class TrainCfg:
+class VinfTrainCfg:
     seed: int = 0
     device: str = "cpu"
     mu: float = 2.0
@@ -29,20 +27,28 @@ class TrainCfg:
     steps: int = 1000
     lr: float = 2e-4
     log_every: int = 200
-    normalize_margin: bool = True   # your V-scale stabilizer
+    normalize_margin: bool = True
+    box_x1_min: float = -20.0
+    box_x1_max: float = 20.0
+    box_x2_min: float = -20.0
+    box_x2_max: float = 20.0
 
 
-def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV, Params, float]:
-    torch.manual_seed(cfg.seed)
-    np.random.seed(cfg.seed)
+def train_vinf(cfg: VinfTrainCfg, save_path: Optional[str] = None) -> HomogV:
+    torch.manual_seed(int(cfg.seed))
+    np.random.seed(int(cfg.seed))
     dev = torch.device(cfg.device)
 
     p = Params()
     V = HomogV(mu=cfg.mu, eps=1e-3, hidden=cfg.hidden, depth=cfg.depth).to(dev)
     opt = optim.Adam(V.parameters(), lr=cfg.lr)
 
-    Xtr = torch.from_numpy(sample_Sr1(cfg.n_train, cfg.seed)).to(dev)
-    Xva = torch.from_numpy(sample_Sr1(cfg.n_val, cfg.seed + 1)).to(dev)
+    Xtr = torch.from_numpy(
+        sample_box(cfg.n_train, cfg.box_x1_min, cfg.box_x1_max, cfg.box_x2_min, cfg.box_x2_max, cfg.seed)
+    ).to(dev)
+    Xva = torch.from_numpy(
+        sample_box(cfg.n_val, cfg.box_x1_min, cfg.box_x1_max, cfg.box_x2_min, cfg.box_x2_max, cfg.seed + 1)
+    ).to(dev)
 
     best_state, best_viol = None, 1e9
 
@@ -70,7 +76,7 @@ def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV,
             Vdy = Vdot(V, Xva, p, f_inf, create_graph=False).detach()
             m = (Vdy + cfg.alpha * Vy).squeeze(1)
             viol = (m > 0).float().mean().item()
-            print(f"[step {step:5d}] loss={loss.item():.3e} viol={viol:.3e} mmax={m.max().item():.3e}")
+            print(f"[vinf {step:5d}] loss={loss.item():.3e} viol={viol:.3e} mmax={m.max().item():.3e}")
             if viol < best_viol:
                 best_viol = viol
                 best_state = {k: v.detach().cpu().clone() for k, v in V.state_dict().items()}
@@ -80,9 +86,20 @@ def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV,
 
     if save_path:
         os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
-        torch.save({"state_dict": V.state_dict(), "meta": {"mu": cfg.mu, "alpha": cfg.alpha}}, save_path)
+        torch.save(
+            {
+                "state_dict": V.state_dict(),
+                "meta": {
+                    "mu": cfg.mu,
+                    "alpha": cfg.alpha,
+                    "hidden": cfg.hidden,
+                    "depth": cfg.depth,
+                },
+            },
+            save_path,
+        )
         print(f"[save] {save_path}")
 
     xeq = equilibrium_x1(p)
     print(f"[eq] x_eq={xeq:.12f}, v_eq=0")
-    return V, p, xeq
+    return V

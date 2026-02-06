@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Dict, Tuple
-
 import os
 
 import numpy as np
@@ -16,45 +13,31 @@ from lyapnn.systems.duffing_friction import Params, f_full, equilibrium_x1
 
 
 @dataclass
-class TrainCfg:
-    # Repro + device
+class WTrainCfg:
     seed: int = 0
     device: str = "cpu"
-    dtype: str = "float32"  # "float32" | "float64"
-
-    # Net
+    dtype: str = "float32"
     hidden: int = 64
     depth: int = 2
-
-    # Optim
     steps: int = 50000
     batch: int = 2048
     lr: float = 1e-3
     log_every: int = 200
-
-    # Region (SHIFTED coords)
-    x1_min: float = 0.0
-    x1_max: float = 1.0
-    x2_min: float = -1.0
-    x2_max: float = 1.0
+    x1_min: float = -5.0
+    x1_max: float = 5.0
+    x2_min: float = -5.0
+    x2_max: float = 5.0
     r_min: float = 0.0
-
-    # Loss
     margin: float = 0.0
     alpha_pos: float = 1e-3
     eps_s: float = 1e-2
     lam_s: float = 1e-3
+    w_scale: float = 0.1
 
 
-def shifted_to_original(x_tilde: torch.Tensor, x_eq: float) -> torch.Tensor:
-    # x = [x_tilde1 + x_eq, x_tilde2]
-    return torch.stack([x_tilde[:, 0] + x_eq, x_tilde[:, 1]], dim=1)
+class WNet(nn.Module):
+    """MLP without biases => T(0)=0 exactly, so W(x)=||T(x)||^2 has W(0)=0."""
 
-
-class TNet(nn.Module):
-    """
-    MLP without biases => T(0)=0 exactly, so W(x)=||T(x)||^2 has W(0)=0.
-    """
     def __init__(self, hidden: int = 64, depth: int = 2):
         super().__init__()
         depth = int(depth)
@@ -93,7 +76,6 @@ def _apply_rmin_mask(x: torch.Tensor, r_min: float) -> torch.Tensor:
 
 
 def _sigma_min_2x2(J11: torch.Tensor, J12: torch.Tensor, J21: torch.Tensor, J22: torch.Tensor) -> torch.Tensor:
-    # sigma_min(J) = sqrt( lambda_min(J^T J) ) for 2x2
     a = J11 * J11 + J21 * J21
     b = J11 * J12 + J21 * J22
     c = J12 * J12 + J22 * J22
@@ -104,7 +86,7 @@ def _sigma_min_2x2(J11: torch.Tensor, J12: torch.Tensor, J21: torch.Tensor, J22:
     return torch.sqrt(lam_min + 1e-18)
 
 
-def compute_loss(
+def _compute_loss(
     model: nn.Module,
     x_tilde: torch.Tensor,
     p: Params,
@@ -113,23 +95,17 @@ def compute_loss(
     alpha_pos: float,
     eps_s: float,
     lam_s: float,
+    w_scale: float,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
-    """
-    Train in SHIFTED coords x_tilde=(x1-x_eq, x2).
-    Dynamics uses ORIGINAL coords x=(x_tilde1+x_eq, x2).
-    """
     x_tilde = x_tilde.requires_grad_(True)
 
     T = model(x_tilde)
-    W = torch.sum(T * T, dim=1)  # (B,)
+    W = 0.5 * float(w_scale) * torch.sum(T * T, dim=1)
+    gradW = torch.autograd.grad(W.sum(), x_tilde, create_graph=True)[0]
 
-    gradW = torch.autograd.grad(W.sum(), x_tilde, create_graph=True)[0]  # (B,2)
-
-    x = shifted_to_original(x_tilde, float(x_eq))
+    x = torch.stack([x_tilde[:, 0] + float(x_eq), x_tilde[:, 1]], dim=1)
     f = f_full(x, p)
-
-    # Shift is constant => d/dx_tilde equals d/dx for both components.
-    Wdot = torch.sum(gradW * f, dim=1)  # (B,)
+    Wdot = torch.sum(gradW * f, dim=1)
     S = Wdot + W
 
     reluS = torch.relu(S + float(margin))
@@ -161,7 +137,7 @@ def compute_loss(
     return total, diag
 
 
-def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
+def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
     device = torch.device(cfg.device)
     dtype = torch.float32 if cfg.dtype == "float32" else torch.float64
 
@@ -176,7 +152,7 @@ def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
     print("Training region is in SHIFTED coords: x_tilde = [x1 - x_eq, x2]")
     print(f"Region: x1 in [{cfg.x1_min},{cfg.x1_max}], x2 in [{cfg.x2_min},{cfg.x2_max}], r_min={cfg.r_min}")
 
-    model = TNet(hidden=cfg.hidden, depth=cfg.depth).to(device=device, dtype=dtype)
+    model = WNet(hidden=cfg.hidden, depth=cfg.depth).to(device=device, dtype=dtype)
     opt = optim.Adam(model.parameters(), lr=float(cfg.lr))
 
     for step in range(int(cfg.steps) + 1):
@@ -191,7 +167,7 @@ def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
             x = x[idx]
 
         opt.zero_grad(set_to_none=True)
-        loss, diag = compute_loss(
+        loss, diag = _compute_loss(
             model=model,
             x_tilde=x,
             p=p,
@@ -200,13 +176,14 @@ def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
             alpha_pos=cfg.alpha_pos,
             eps_s=cfg.eps_s,
             lam_s=cfg.lam_s,
+            w_scale=cfg.w_scale,
         )
         loss.backward()
         opt.step()
 
         if step % int(cfg.log_every) == 0:
             print(
-                f"step {step:6d}/{cfg.steps} | "
+                f"[w {step:6d}/{cfg.steps}] "
                 f"loss {diag['loss_total']:.3e} | main {diag['loss_main']:.3e} | "
                 f"pos {diag['loss_pos']:.3e} | s {diag['loss_s']:.3e} | "
                 f"maxS {diag['max_S']:.3e} | frac(S>0) {diag['frac_S_pos_%']:.3f}% | "
@@ -219,25 +196,12 @@ def train_step3(cfg: TrainCfg, save_path: str = "W_model.pt") -> None:
             "state_dict": model.state_dict(),
             "params": p.__dict__,
             "x_eq": x_eq,
-            "args": {
-                "hidden": int(cfg.hidden),
-                "depth": int(cfg.depth),
-                "steps": int(cfg.steps),
-                "batch": int(cfg.batch),
-                "lr": float(cfg.lr),
-                "margin": float(cfg.margin),
-                "alpha_pos": float(cfg.alpha_pos),
-                "eps_s": float(cfg.eps_s),
-                "lam_s": float(cfg.lam_s),
-                "r_min": float(cfg.r_min),
-                "region_shifted": {
-                    "x1_min": float(cfg.x1_min),
-                    "x1_max": float(cfg.x1_max),
-                    "x2_min": float(cfg.x2_min),
-                    "x2_max": float(cfg.x2_max),
-                },
-            },
+            "hidden": int(cfg.hidden),
+            "depth": int(cfg.depth),
+            "dtype": str(cfg.dtype),
+            "w_scale": float(cfg.w_scale),
         },
         save_path,
     )
     print(f"Saved: {save_path}")
+    return model
