@@ -1,48 +1,36 @@
-# lyapnn — Homogeneous NN Lyapunov (r=(1,2))
+# lyapnn — Unified Lyapunov pipeline
 
-This repo contains two training stages and matching visual diagnostics:
+This project now runs one end-to-end workflow:
 
-- **Step 2**: train a homogeneous NN Lyapunov candidate `V` on the infinity approximation `f_inf` over `S_r(1)`.
-- **Step 3**: train a near-zero corrector `W(x)=||T(x)||^2` on a user-defined rectangle in *shifted* coordinates.
+1) **Train V_inf on f_inf** over a box `Omega` (no shift).
+2) **Diagnostics for V_inf** on `Omega`.
+3) **Compute V_full** using V_inf and f_full on `Omega`, then plot diagnostics.
+4) **Train W** on a local box around equilibrium (shifted coordinates).
+5) **Diagnostics for W** on that local box.
+6) **Blend V_full/W** on `Omega` using:
+   - outside `W_box`: V_full
+   - inside `X_box`: W
+   - between: `max(V_full, W)` with corresponding derivative
+7) **Final diagnostics** on `Omega`.
 
-## Install (editable)
+## Install
 ```bash
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Linux/Mac:
-# source .venv/bin/activate
-
+source .venv/bin/activate
 pip install -U pip
 pip install -e .
 ```
 
-## Train (Step 2)
+## Run (single command)
 ```bash
-lyapnn step2-train --device cpu --steps 1000 --outdir runs/step2
+lyapnn --outdir runs/output \
+  --omega_x1_min -20 --omega_x1_max 20 --omega_x2_min -20 --omega_x2_max 20 \
+  --w_box_x1_min -5 --w_box_x1_max 5 --w_box_x2_min -5 --w_box_x2_max 5 \
+  --x_box_x1_min -1 --x_box_x1_max 1 --x_box_x2_min -1 --x_box_x2_max 1
 ```
-
-## Plot diagnostics (heatmaps + 3D surfaces)
-```bash
-lyapnn step2-plot --ckpt runs/step2/step2_V.pt --outdir runs/step2
-```
-
-## Train + plot (Step 3)
-```bash
-lyapnn step3-train --outdir runs/step3 \
-  --x1_min 0 --x1_max 10 --x2_min -10 --x2_max 2 \
-  --steps 50000 --batch 2048 --lr 1e-3
-
-lyapnn step3-plot --ckpt runs/step3/W_model.pt --outdir runs/step3 \
-  --x1_min 0 --x1_max 10 --x2_min -10 --x2_max 2 --plot_3d --save
-```
-
-Outputs are written to `runs/step2/` and `runs/step3/` by default.
 
 Notes:
-- No seaborn; matplotlib only.
-- `V(x) = rho(x)^mu * W(y)` with `W(y) = softplus(Wraw(y)) + eps`.
-
-### Backward-compatible scripts
-The `scripts/` folder still exists, but now it simply forwards to the unified CLI.
-For open-source usage, prefer `lyapnn ...` commands.
+- `Omega` is in **original coordinates** (no shift).
+- `W_box` and `X_box` are in **shifted coordinates** (centered at x_eq).
+- Heatmaps are saved as a single image with V and dV side-by-side; bad regions highlight `V<=0` or `dV>=0`.
+- 3D plots are shown sequentially so you can rotate them.

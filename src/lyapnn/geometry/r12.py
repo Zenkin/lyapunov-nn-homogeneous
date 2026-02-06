@@ -25,3 +25,18 @@ def sample_Sr1(n: int, seed: int = 0) -> np.ndarray:
     y1 = rng.uniform(-1.0, 1.0, size=n)
     y2 = (1.0 - y1 ** 2) * rng.choice([-1.0, 1.0], size=n)
     return np.column_stack([y1, y2]).astype(np.float32)
+
+
+def sample_box(
+    n: int,
+    x1_min: float,
+    x1_max: float,
+    x2_min: float,
+    x2_max: float,
+    seed: int = 0,
+) -> np.ndarray:
+    """Uniformly sample points in a 2D box."""
+    rng = np.random.default_rng(seed)
+    x1 = rng.uniform(float(x1_min), float(x1_max), size=n)
+    x2 = rng.uniform(float(x2_min), float(x2_max), size=n)
+    return np.column_stack([x1, x2]).astype(np.float32)
