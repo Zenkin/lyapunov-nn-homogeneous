@@ -10,6 +10,7 @@ from lyapnn.viz.w_diagnostics import WPlotCfg, plot_w_diagnostics_from_ckpt
 from lyapnn.pipelines.step4_blend_plot import Step4PlotCfg, plot_step4_blend
 from lyapnn.viz.blend_rect import Rect
 from lyapnn.pipelines.step4_blend_rect_plot import Step4Cfg, plot_step4_rect_blend
+from lyapnn.pipelines.workflow import WorkflowCfg, run_workflow
 
 
 def _cmd_step2_train(a: argparse.Namespace) -> None:
@@ -88,6 +89,90 @@ def _cmd_step3_plot(a: argparse.Namespace) -> None:
     )
     info = plot_w_diagnostics_from_ckpt(a.ckpt, cfg=cfg, device=a.device, dtype=a.dtype)
     print(f"[done] x_eq={info.get('x_eq')}")
+
+
+def _cmd_workflow(a: argparse.Namespace) -> None:
+    step2_outdir = a.step2_outdir
+    step3_outdir = a.step3_outdir
+    os.makedirs(step2_outdir, exist_ok=True)
+    os.makedirs(step3_outdir, exist_ok=True)
+
+    step2_ckpt = os.path.join(step2_outdir, "step2_V.pt")
+    step3_ckpt = os.path.join(step3_outdir, "W_model.pt")
+
+    step2_cfg = Step2Cfg(
+        seed=a.seed,
+        device=a.device,
+        mu=a.step2_mu,
+        alpha=a.step2_alpha,
+        hidden=a.step2_hidden,
+        depth=a.step2_depth,
+        steps=a.step2_steps,
+        batch=a.step2_batch,
+        lr=a.step2_lr,
+        log_every=a.step2_log_every,
+        normalize_margin=bool(a.step2_normalize_margin),
+    )
+
+    step2_plot_cfg = Step2PlotCfg(
+        ckpt=step2_ckpt,
+        device=a.device,
+        outdir=step2_outdir,
+        plot_inf=not a.no_step2_plot,
+        plot_full=not a.no_step2_plot,
+        plot_bad_regions=not a.no_step2_plot,
+        plot_3d=bool(a.step2_plot_3d),
+        n=a.step2_plot_n,
+        alpha_for_margin=a.step2_plot_alpha,
+    )
+
+    step3_cfg = Step3Cfg(
+        seed=a.seed,
+        device=a.device,
+        dtype=a.dtype,
+        hidden=a.step3_hidden,
+        depth=a.step3_depth,
+        steps=a.step3_steps,
+        batch=a.step3_batch,
+        lr=a.step3_lr,
+        log_every=a.step3_log_every,
+        x1_min=a.x1_min,
+        x1_max=a.x1_max,
+        x2_min=a.x2_min,
+        x2_max=a.x2_max,
+        r_min=a.step3_r_min,
+        margin=a.step3_margin,
+        alpha_pos=a.step3_alpha_pos,
+        eps_s=a.step3_eps_s,
+        lam_s=a.step3_lam_s,
+    )
+
+    step3_plot_cfg = WPlotCfg(
+        x1_min=a.x1_min,
+        x1_max=a.x1_max,
+        x2_min=a.x2_min,
+        x2_max=a.x2_max,
+        grid=a.step3_plot_grid,
+        alpha=a.step3_plot_alpha,
+        plot_3d=bool(a.step3_plot_3d),
+        save_path_4=os.path.join(step3_outdir, "W_diag4.png"),
+        save_path_bad=os.path.join(step3_outdir, "W_bad_regions.png"),
+        save_path_3d_w=os.path.join(step3_outdir, "W_3d.png"),
+        save_path_3d_wdot=os.path.join(step3_outdir, "Wdot_3d.png"),
+    )
+
+    cfg = WorkflowCfg(
+        step2_cfg=step2_cfg,
+        step3_cfg=step3_cfg,
+        step2_plot_cfg=step2_plot_cfg,
+        step3_plot_cfg=step3_plot_cfg,
+        step2_ckpt=step2_ckpt,
+        step3_ckpt=step3_ckpt,
+        run_step2_plot=not a.no_step2_plot,
+        run_step3_plot=not a.no_step3_plot,
+    )
+    run_workflow(cfg, device=a.device, dtype=a.dtype)
+    print(f"[workflow] step2_outdir={step2_outdir} step3_outdir={step3_outdir}")
 
 
 def _cmd_step4_plot(a: argparse.Namespace) -> None:
@@ -190,10 +275,10 @@ def build_parser() -> argparse.ArgumentParser:
     p3t.add_argument("--batch", type=int, default=2048)
     p3t.add_argument("--lr", type=float, default=1e-3)
     p3t.add_argument("--log_every", type=int, default=200)
-    p3t.add_argument("--x1_min", type=float, required=True)
-    p3t.add_argument("--x1_max", type=float, required=True)
-    p3t.add_argument("--x2_min", type=float, required=True)
-    p3t.add_argument("--x2_max", type=float, required=True)
+    p3t.add_argument("--x1_min", type=float, default=-2.0)
+    p3t.add_argument("--x1_max", type=float, default=2.0)
+    p3t.add_argument("--x2_min", type=float, default=-2.0)
+    p3t.add_argument("--x2_max", type=float, default=2.0)
     p3t.add_argument("--r_min", type=float, default=0.0)
     p3t.add_argument("--margin", type=float, default=0.0)
     p3t.add_argument("--alpha_pos", type=float, default=1e-3)
@@ -206,15 +291,60 @@ def build_parser() -> argparse.ArgumentParser:
     p3p.add_argument("--outdir", default="runs/step3")
     p3p.add_argument("--device", default="cpu")
     p3p.add_argument("--dtype", default="float32", choices=["float32", "float64"])
-    p3p.add_argument("--x1_min", type=float, required=True)
-    p3p.add_argument("--x1_max", type=float, required=True)
-    p3p.add_argument("--x2_min", type=float, required=True)
-    p3p.add_argument("--x2_max", type=float, required=True)
+    p3p.add_argument("--x1_min", type=float, default=-2.0)
+    p3p.add_argument("--x1_max", type=float, default=2.0)
+    p3p.add_argument("--x2_min", type=float, default=-2.0)
+    p3p.add_argument("--x2_max", type=float, default=2.0)
     p3p.add_argument("--grid", type=int, default=401)
     p3p.add_argument("--alpha", type=float, default=1.0)
     p3p.add_argument("--plot_3d", action="store_true")
     p3p.add_argument("--save", action="store_true", help="Save figures to outdir")
     p3p.set_defaults(func=_cmd_step3_plot)
+
+    # ---- Workflow ----
+    wf = sub.add_parser("workflow", help="Run step2-train+plot and step3-train+plot with unified settings.")
+    wf.add_argument("--step2_outdir", default="runs/step2")
+    wf.add_argument("--step3_outdir", default="runs/step3")
+    wf.add_argument("--device", default="cpu")
+    wf.add_argument("--dtype", default="float32", choices=["float32", "float64"])
+    wf.add_argument("--seed", type=int, default=0)
+
+    wf.add_argument("--step2_mu", type=float, default=2.0)
+    wf.add_argument("--step2_alpha", type=float, default=1.0)
+    wf.add_argument("--step2_hidden", type=int, default=64)
+    wf.add_argument("--step2_depth", type=int, default=3)
+    wf.add_argument("--step2_steps", type=int, default=1000)
+    wf.add_argument("--step2_batch", type=int, default=2048)
+    wf.add_argument("--step2_lr", type=float, default=2e-4)
+    wf.add_argument("--step2_log_every", type=int, default=200)
+    wf.add_argument("--step2_normalize_margin", type=int, default=1, help="1/0")
+    wf.add_argument("--step2_plot_n", type=int, default=301)
+    wf.add_argument("--step2_plot_alpha", type=float, default=0.2)
+    wf.add_argument("--step2_plot_3d", action="store_true")
+    wf.add_argument("--no_step2_plot", action="store_true")
+
+    wf.add_argument("--step3_hidden", type=int, default=64)
+    wf.add_argument("--step3_depth", type=int, default=2)
+    wf.add_argument("--step3_steps", type=int, default=50000)
+    wf.add_argument("--step3_batch", type=int, default=2048)
+    wf.add_argument("--step3_lr", type=float, default=1e-3)
+    wf.add_argument("--step3_log_every", type=int, default=200)
+    wf.add_argument("--step3_r_min", type=float, default=0.0)
+    wf.add_argument("--step3_margin", type=float, default=0.0)
+    wf.add_argument("--step3_alpha_pos", type=float, default=1e-3)
+    wf.add_argument("--step3_eps_s", type=float, default=1e-2)
+    wf.add_argument("--step3_lam_s", type=float, default=1e-3)
+
+    wf.add_argument("--x1_min", type=float, default=-2.0)
+    wf.add_argument("--x1_max", type=float, default=2.0)
+    wf.add_argument("--x2_min", type=float, default=-2.0)
+    wf.add_argument("--x2_max", type=float, default=2.0)
+
+    wf.add_argument("--step3_plot_grid", type=int, default=401)
+    wf.add_argument("--step3_plot_alpha", type=float, default=1.0)
+    wf.add_argument("--step3_plot_3d", action="store_true")
+    wf.add_argument("--no_step3_plot", action="store_true")
+    wf.set_defaults(func=_cmd_workflow)
 
 
 

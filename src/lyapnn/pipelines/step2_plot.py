@@ -46,8 +46,11 @@ class Step2PlotCfg:
 
 def load_v_ckpt(ckpt_path: str, device: str = "cpu") -> HomogV:
     ckpt = torch.load(ckpt_path, map_location=device)
-    mu = float(ckpt.get("meta", {}).get("mu", 2.0))
-    V = HomogV(mu=mu, eps=1e-3, hidden=64, depth=3).to(device)
+    meta = ckpt.get("meta", {})
+    mu = float(meta.get("mu", 2.0))
+    hidden = int(meta.get("hidden", 64))
+    depth = int(meta.get("depth", 3))
+    V = HomogV(mu=mu, eps=1e-3, hidden=hidden, depth=depth).to(device)
     V.load_state_dict(ckpt["state_dict"])
     V.eval()
     return V
