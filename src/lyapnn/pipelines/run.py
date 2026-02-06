@@ -106,25 +106,31 @@ def _blend_weight(
     outside = (x1 < x1_min) | (x1 > x1_max) | (x2 < x2_min) | (x2 > x2_max)
 
     s = np.zeros_like(x1, dtype=float)
-    s[inside] = 1.0
     mid = (~inside) & (~outside)
-    if not np.any(mid):
-        return s
+    if np.any(mid):
+        def axis_u(x, omin, omax, imin, imax):
+            u = np.zeros_like(x, dtype=float)
+            left = x < imin
+            right = x > imax
+            den_l = max(1e-12, (imin - omin))
+            den_r = max(1e-12, (omax - imax))
+            u[left] = (imin - x[left]) / den_l
+            u[right] = (x[right] - imax) / den_r
+            return np.clip(u, 0.0, 1.0)
 
-    def axis_u(x, omin, omax, imin, imax):
-        u = np.zeros_like(x, dtype=float)
-        left = x < imin
-        right = x > imax
-        den_l = max(1e-12, (imin - omin))
-        den_r = max(1e-12, (omax - imax))
-        u[left] = (imin - x[left]) / den_l
-        u[right] = (x[right] - imax) / den_r
-        return np.clip(u, 0.0, 1.0)
+        u1 = axis_u(x1[mid], x1_min, x1_max, xi_min, xi_max)
+        u2 = axis_u(x2[mid], x2_min, x2_max, yi_min, yi_max)
+        u = np.maximum(u1, u2)
+        s[mid] = 1.0 - _smoothstep01(u)
 
-    u1 = axis_u(x1[mid], x1_min, x1_max, xi_min, xi_max)
-    u2 = axis_u(x2[mid], x2_min, x2_max, yi_min, yi_max)
-    u = np.maximum(u1, u2)
-    s[mid] = 1.0 - _smoothstep01(u)
+    if np.any(inside):
+        cx = 0.5 * (xi_min + xi_max)
+        cy = 0.5 * (yi_min + yi_max)
+        hx = max(1e-12, 0.5 * (xi_max - xi_min))
+        hy = max(1e-12, 0.5 * (yi_max - yi_min))
+        u_in = np.maximum(np.abs(x1[inside] - cx) / hx, np.abs(x2[inside] - cy) / hy)
+        u_in = np.clip(u_in, 0.0, 1.0)
+        s[inside] = 0.8 + 0.2 * (1.0 - _smoothstep01(u_in))
     return s
 
 
@@ -165,7 +171,10 @@ def _blend_v(
 
     fallback = ~(only_full | only_w | both)
     if np.any(fallback):
-        weight = s[fallback]
+        mf = m_full[fallback]
+        mw = m_w[fallback]
+        bias = 1.0 / (1.0 + np.exp(5.0 * (mw - mf)))
+        weight = 0.5 * s[fallback] + 0.5 * bias
         V[fallback] = (1.0 - weight) * Vfull[fallback] + weight * W[fallback]
         dV[fallback] = (1.0 - weight) * dVfull[fallback] + weight * dW[fallback]
 
