@@ -88,31 +88,86 @@ def _eval_vfull_and_dot(
     return Vx, Vdot_full
 
 
+def _smoothstep01(t: np.ndarray) -> np.ndarray:
+    t = np.clip(t, 0.0, 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def _blend_weight(
+    x1: np.ndarray,
+    x2: np.ndarray,
+    w_box: Tuple[float, float, float, float],
+    x_box: Tuple[float, float, float, float],
+) -> np.ndarray:
+    x1_min, x1_max, x2_min, x2_max = w_box
+    xi_min, xi_max, yi_min, yi_max = x_box
+
+    inside = (x1 >= xi_min) & (x1 <= xi_max) & (x2 >= yi_min) & (x2 <= yi_max)
+    outside = (x1 < x1_min) | (x1 > x1_max) | (x2 < x2_min) | (x2 > x2_max)
+
+    s = np.zeros_like(x1, dtype=float)
+    s[inside] = 1.0
+    mid = (~inside) & (~outside)
+    if not np.any(mid):
+        return s
+
+    def axis_u(x, omin, omax, imin, imax):
+        u = np.zeros_like(x, dtype=float)
+        left = x < imin
+        right = x > imax
+        den_l = max(1e-12, (imin - omin))
+        den_r = max(1e-12, (omax - imax))
+        u[left] = (imin - x[left]) / den_l
+        u[right] = (x[right] - imax) / den_r
+        return np.clip(u, 0.0, 1.0)
+
+    u1 = axis_u(x1[mid], x1_min, x1_max, xi_min, xi_max)
+    u2 = axis_u(x2[mid], x2_min, x2_max, yi_min, yi_max)
+    u = np.maximum(u1, u2)
+    s[mid] = 1.0 - _smoothstep01(u)
+    return s
+
+
 def _blend_v(
     Vfull: np.ndarray,
     dVfull: np.ndarray,
     W: np.ndarray,
     dW: np.ndarray,
-    w_mask: np.ndarray,
-    x_mask: np.ndarray,
+    w_box: Tuple[float, float, float, float],
+    x_box: Tuple[float, float, float, float],
+    x1_tilde: np.ndarray,
+    x2_tilde: np.ndarray,
+    alpha: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
+    s = _blend_weight(x1_tilde, x2_tilde, w_box, x_box)
     V = Vfull.copy()
     dV = dVfull.copy()
 
-    inside = x_mask
-    between = w_mask & (~x_mask)
+    m_full = dVfull + float(alpha) * Vfull
+    m_w = dW + float(alpha) * W
 
-    V[inside] = W[inside]
-    dV[inside] = dW[inside]
+    ok_full = (Vfull > 0.0) & (m_full < 0.0)
+    ok_w = (W > 0.0) & (m_w < 0.0)
 
-    if np.any(between):
-        use_w = W[between] >= Vfull[between]
-        V_between = Vfull[between].copy()
-        dV_between = dVfull[between].copy()
-        V_between[use_w] = W[between][use_w]
-        dV_between[use_w] = dW[between][use_w]
-        V[between] = V_between
-        dV[between] = dV_between
+    only_full = ok_full & (~ok_w)
+    only_w = ok_w & (~ok_full)
+    both = ok_full & ok_w
+
+    V[only_full] = Vfull[only_full]
+    dV[only_full] = dVfull[only_full]
+    V[only_w] = W[only_w]
+    dV[only_w] = dW[only_w]
+
+    if np.any(both):
+        weight = s[both]
+        V[both] = (1.0 - weight) * Vfull[both] + weight * W[both]
+        dV[both] = (1.0 - weight) * dVfull[both] + weight * dW[both]
+
+    fallback = ~(only_full | only_w | both)
+    if np.any(fallback):
+        weight = s[fallback]
+        V[fallback] = (1.0 - weight) * Vfull[fallback] + weight * W[fallback]
+        dV[fallback] = (1.0 - weight) * dVfull[fallback] + weight * dW[fallback]
 
     return V, dV
 
@@ -246,7 +301,8 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
     Wnet = train_w_local(w_cfg, save_path=os.path.join(out_w, "w_model.pt"))
     Wnet = Wnet.to(device=dev, dtype=dt)
 
-    X1w, X2w, Xt_w = make_grid((w_box[0], w_box[1]), (w_box[2], w_box[3]), cfg.grid, cfg.device)
+    X1w, X2w, Xt_w = make_grid((omega[0], omega[1]), (omega[2], omega[3]), cfg.grid, cfg.device)
+    Xt_w[:, 0] = Xt_w[:, 0] - float(x_eq)
     Wval, Wdot = _eval_w_and_dot(Wnet, Xt_w, p, x_eq)
     Wval = Wval.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
     Wdot = Wdot.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
@@ -257,7 +313,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         V=Wval,
         Vdot=Wdot,
         title="W and dW",
-        xlabel="x1_tilde",
+        xlabel="x1",
         ylabel="x2",
         save_path=os.path.join(out_w, "w_heatmaps.png") if cfg.save else None,
         show=cfg.show,
@@ -289,16 +345,17 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
     Wdot_all = Wdot_all.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
 
     x_tilde = Xt_final.detach().cpu().numpy().reshape(cfg.grid, cfg.grid, 2)
-    w_mask = (
-        (x_tilde[:, :, 0] >= w_box[0]) & (x_tilde[:, :, 0] <= w_box[1]) &
-        (x_tilde[:, :, 1] >= w_box[2]) & (x_tilde[:, :, 1] <= w_box[3])
+    V_final, dV_final = _blend_v(
+        Vfull_all,
+        Vdot_full_all,
+        W_all,
+        Wdot_all,
+        w_box,
+        x_box,
+        x_tilde[:, :, 0],
+        x_tilde[:, :, 1],
+        cfg.vinf_alpha,
     )
-    x_mask = (
-        (x_tilde[:, :, 0] >= x_box[0]) & (x_tilde[:, :, 0] <= x_box[1]) &
-        (x_tilde[:, :, 1] >= x_box[2]) & (x_tilde[:, :, 1] <= x_box[3])
-    )
-
-    V_final, dV_final = _blend_v(Vfull_all, Vdot_full_all, W_all, Wdot_all, w_mask, x_mask)
 
     plot_heatmap_pair(
         X1=X1f,
