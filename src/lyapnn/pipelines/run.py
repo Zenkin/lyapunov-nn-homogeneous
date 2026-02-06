@@ -46,6 +46,7 @@ class RunCfg:
     w_alpha_pos: float
     w_eps_s: float
     w_lam_s: float
+    w_scale: float = 0.1
     show: bool = True
     save: bool = True
 
@@ -61,10 +62,11 @@ def _eval_w_and_dot(
     xt: torch.Tensor,
     p: Params,
     x_eq: float,
+    w_scale: float,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     xt = xt.clone().detach().requires_grad_(True)
     T = net(xt)
-    W = 0.5 * torch.sum(T * T, dim=1, keepdim=True)
+    W = 0.5 * float(w_scale) * torch.sum(T * T, dim=1, keepdim=True)
     gradW = torch.autograd.grad(W.sum(), xt, create_graph=False)[0]
     x = torch.stack([xt[:, 0] + float(x_eq), xt[:, 1]], dim=1)
     fx = f_full(x, p)
@@ -308,13 +310,14 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         alpha_pos=cfg.w_alpha_pos,
         eps_s=cfg.w_eps_s,
         lam_s=cfg.w_lam_s,
+        w_scale=cfg.w_scale,
     )
     Wnet = train_w_local(w_cfg, save_path=os.path.join(out_w, "w_model.pt"))
     Wnet = Wnet.to(device=dev, dtype=dt)
 
     X1w, X2w, Xt_w = make_grid((omega[0], omega[1]), (omega[2], omega[3]), cfg.grid, cfg.device)
     Xt_w[:, 0] = Xt_w[:, 0] - float(x_eq)
-    Wval, Wdot = _eval_w_and_dot(Wnet, Xt_w, p, x_eq)
+    Wval, Wdot = _eval_w_and_dot(Wnet, Xt_w, p, x_eq, cfg.w_scale)
     Wval = Wval.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
     Wdot = Wdot.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
 
@@ -353,7 +356,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
     with torch.no_grad():
         Vfull_all = V(Xt_final).reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
     Vdot_full_all = Vdot(V, Xt_final, p, f_full, create_graph=False).reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
-    W_all, Wdot_all = _eval_w_and_dot(Wnet, Xt_final, p, x_eq)
+    W_all, Wdot_all = _eval_w_and_dot(Wnet, Xt_final, p, x_eq, cfg.w_scale)
     W_all = W_all.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
     Wdot_all = Wdot_all.reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
 

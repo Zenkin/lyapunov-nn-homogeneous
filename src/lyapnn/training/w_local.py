@@ -32,6 +32,7 @@ class WTrainCfg:
     alpha_pos: float = 1e-3
     eps_s: float = 1e-2
     lam_s: float = 1e-3
+    w_scale: float = 0.1
 
 
 class WNet(nn.Module):
@@ -94,11 +95,12 @@ def _compute_loss(
     alpha_pos: float,
     eps_s: float,
     lam_s: float,
+    w_scale: float,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
     x_tilde = x_tilde.requires_grad_(True)
 
     T = model(x_tilde)
-    W = 0.5 * torch.sum(T * T, dim=1)
+    W = 0.5 * float(w_scale) * torch.sum(T * T, dim=1)
     gradW = torch.autograd.grad(W.sum(), x_tilde, create_graph=True)[0]
 
     x = torch.stack([x_tilde[:, 0] + float(x_eq), x_tilde[:, 1]], dim=1)
@@ -174,6 +176,7 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
             alpha_pos=cfg.alpha_pos,
             eps_s=cfg.eps_s,
             lam_s=cfg.lam_s,
+            w_scale=cfg.w_scale,
         )
         loss.backward()
         opt.step()
@@ -196,6 +199,7 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
             "hidden": int(cfg.hidden),
             "depth": int(cfg.depth),
             "dtype": str(cfg.dtype),
+            "w_scale": float(cfg.w_scale),
         },
         save_path,
     )

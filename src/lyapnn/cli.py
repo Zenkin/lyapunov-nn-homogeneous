@@ -52,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--w_alpha_pos", type=float, default=1e-3)
     ap.add_argument("--w_eps_s", type=float, default=1e-2)
     ap.add_argument("--w_lam_s", type=float, default=1e-3)
+    ap.add_argument("--w_scale", type=float, default=0.1)
 
     return ap
 
@@ -88,6 +89,7 @@ def main() -> None:
         w_alpha_pos=args.w_alpha_pos,
         w_eps_s=args.w_eps_s,
         w_lam_s=args.w_lam_s,
+        w_scale=args.w_scale,
         show=not args.no_show,
         save=not args.no_save,
     )
