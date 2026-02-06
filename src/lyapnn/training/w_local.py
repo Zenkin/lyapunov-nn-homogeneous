@@ -98,7 +98,7 @@ def _compute_loss(
     x_tilde = x_tilde.requires_grad_(True)
 
     T = model(x_tilde)
-    W = torch.sum(T * T, dim=1)
+    W = 0.5 * torch.sum(T * T, dim=1)
     gradW = torch.autograd.grad(W.sum(), x_tilde, create_graph=True)[0]
 
     x = torch.stack([x_tilde[:, 0] + float(x_eq), x_tilde[:, 1]], dim=1)

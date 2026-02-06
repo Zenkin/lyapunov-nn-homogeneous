@@ -64,7 +64,7 @@ def _eval_w_and_dot(
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     xt = xt.clone().detach().requires_grad_(True)
     T = net(xt)
-    W = torch.sum(T * T, dim=1, keepdim=True)
+    W = 0.5 * torch.sum(T * T, dim=1, keepdim=True)
     gradW = torch.autograd.grad(W.sum(), xt, create_graph=False)[0]
     x = torch.stack([xt[:, 0] + float(x_eq), xt[:, 1]], dim=1)
     fx = f_full(x, p)
