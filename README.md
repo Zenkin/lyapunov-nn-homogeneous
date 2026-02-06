@@ -38,11 +38,24 @@ lyapnn step3-plot --ckpt runs/step3/W_model.pt --outdir runs/step3 \
 ```
 
 ## Unified workflow (Step 2 → Step 3)
-Run training and plotting in one command with consistent defaults (near-zero region defaults to [-2, 2]).
+Run training and plotting in one command with consistent defaults (near-zero region defaults to [-5, 5]).
 ```bash
 lyapnn workflow --device cpu --dtype float32 \
   --step2_steps 1000 --step3_steps 50000 \
-  --x1_min -2 --x1_max 2 --x2_min -2 --x2_max 2
+  --x1_min -5 --x1_max 5 --x2_min -5 --x2_max 5
+```
+
+### Workflow with box-trained Step 2, near-zero Step 3, and max blend
+```bash
+lyapnn workflow --device cpu --dtype float32 \
+  --step2_sample_mode box \
+  --step2_box_x1_min -20 --step2_box_x1_max 20 \
+  --step2_box_x2_min -20 --step2_box_x2_max 20 \
+  --x1_min -5 --x1_max 5 --x2_min -5 --x2_max 5 \
+  --run_step4_rect \
+  --step4_outer -7 7 -7 7 \
+  --step4_inner -5 5 -5 5 \
+  --step4_blend_mode max
 ```
 
 Outputs are written to `runs/step2/` and `runs/step3/` by default.

@@ -40,6 +40,8 @@ class Step4Cfg:
 
     # Scale W to stay inside V (NO averages): k = min(V/W) over points in mix band
     eps_scale: float = 1e-12
+    blend_mode: str = "smooth"  # "smooth" | "max"
+    w_scale: float = 1.0
 
     # Plots
     plot_3d: bool = False
@@ -221,16 +223,27 @@ def plot_step4_rect_blend(cfg: Step4Cfg) -> Dict[str, float]:
         W = torch.sum(T * T, dim=1, keepdim=True).cpu().numpy().reshape(X1.shape)
 
     s = blend_weight_rect(X1, X2, cfg.outer, cfg.inner)
+    in_outer = (X1 >= cfg.outer.x1_min) & (X1 <= cfg.outer.x1_max) & (X2 >= cfg.outer.x2_min) & (X2 <= cfg.outer.x2_max)
+    in_inner = (X1 >= cfg.inner.x1_min) & (X1 <= cfg.inner.x1_max) & (X2 >= cfg.inner.x2_min) & (X2 <= cfg.inner.x2_max)
 
-    mid = (s > 0.0) & (s < 1.0)
-    if np.any(mid):
-        ratio = V_inf[mid] / (W[mid] + float(cfg.eps_scale))
-        k = float(np.min(ratio))
+    blend_mode = str(cfg.blend_mode).lower()
+    if blend_mode == "max":
+        k = float(cfg.w_scale)
+        Wk = k * W
+        V_blend = V_inf.copy()
+        V_blend[in_inner] = Wk[in_inner]
+        mid = in_outer & (~in_inner)
+        V_blend[mid] = np.maximum(V_inf[mid], Wk[mid])
     else:
-        k = 1.0
+        mid = (s > 0.0) & (s < 1.0)
+        if np.any(mid):
+            ratio = V_inf[mid] / (W[mid] + float(cfg.eps_scale))
+            k = float(np.min(ratio))
+        else:
+            k = 1.0
 
-    Wk = k * W
-    V_blend = (1.0 - s) * V_inf + s * Wk
+        Wk = k * W
+        V_blend = (1.0 - s) * V_inf + s * Wk
 
     # Margin via autograd on blended V
     s_t = torch.tensor(s.reshape(-1, 1), dtype=dtype, device=device)
@@ -239,7 +252,19 @@ def plot_step4_rect_blend(cfg: Step4Cfg) -> Dict[str, float]:
     Vg = Vnet(xtg)
     Tg = Tnet(xtg)
     Wg = (Tg * Tg).sum(dim=1, keepdim=True) * float(k)
-    Vbg = (1.0 - s_t) * Vg + s_t * Wg
+    if blend_mode == "max":
+        in_outer_t = (
+            (xtg[:, 0] >= float(cfg.outer.x1_min)) & (xtg[:, 0] <= float(cfg.outer.x1_max)) &
+            (xtg[:, 1] >= float(cfg.outer.x2_min)) & (xtg[:, 1] <= float(cfg.outer.x2_max))
+        ).unsqueeze(1)
+        in_inner_t = (
+            (xtg[:, 0] >= float(cfg.inner.x1_min)) & (xtg[:, 0] <= float(cfg.inner.x1_max)) &
+            (xtg[:, 1] >= float(cfg.inner.x2_min)) & (xtg[:, 1] <= float(cfg.inner.x2_max))
+        ).unsqueeze(1)
+        mid_t = in_outer_t & (~in_inner_t)
+        Vbg = torch.where(in_inner_t, Wg, torch.where(mid_t, torch.maximum(Vg, Wg), Vg))
+    else:
+        Vbg = (1.0 - s_t) * Vg + s_t * Wg
 
     g = torch.autograd.grad(Vbg.sum(), xtg, create_graph=True)[0]
     x_orig = _shifted_to_original(xtg, x_eq)
@@ -262,6 +287,7 @@ def plot_step4_rect_blend(cfg: Step4Cfg) -> Dict[str, float]:
         show=cfg.show,
     )
     diag["k_scale"] = float(k)
+    diag["blend_mode"] = blend_mode
 
     if cfg.plot_3d:
         _plot_3d_surface(X1, X2, V_blend, os.path.join(cfg.outdir, "Vblend_3d.png") if cfg.save else None, cfg.show, "V_blend")

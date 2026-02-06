@@ -31,8 +31,11 @@ class TNet(torch.nn.Module):
 
 def load_v_ckpt(ckpt_path: str, device: str = "cpu") -> HomogV:
     ckpt = torch.load(ckpt_path, map_location=device)
-    mu = float(ckpt.get("meta", {}).get("mu", 2.0))
-    V = HomogV(mu=mu, eps=1e-3, hidden=64, depth=3).to(device)
+    meta = ckpt.get("meta", {})
+    mu = float(meta.get("mu", 2.0))
+    hidden = int(meta.get("hidden", 64))
+    depth = int(meta.get("depth", 3))
+    V = HomogV(mu=mu, eps=1e-3, hidden=hidden, depth=depth).to(device)
     V.load_state_dict(ckpt["state_dict"])
     V.eval()
     return V
@@ -41,8 +44,8 @@ def load_v_ckpt(ckpt_path: str, device: str = "cpu") -> HomogV:
 def load_w_ckpt(ckpt_path: str, device: str = "cpu", dtype: str = "float32") -> Dict[str, Any]:
     ckpt = torch.load(ckpt_path, map_location=device)
     args = ckpt.get("args", {})
-    hidden = int(args.get("hidden", 64))
-    depth = int(args.get("depth", 2))
+    hidden = int(ckpt.get("hidden", args.get("hidden", 64)))
+    depth = int(ckpt.get("depth", args.get("depth", 2)))
     x_eq = float(ckpt.get("x_eq", 0.0))
     p = Params()
     # restore params if present

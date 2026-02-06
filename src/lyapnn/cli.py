@@ -28,6 +28,11 @@ def _cmd_step2_train(a: argparse.Namespace) -> None:
         lr=a.lr,
         log_every=a.log_every,
         normalize_margin=bool(a.normalize_margin),
+        sample_mode=a.sample_mode,
+        box_x1_min=a.box_x1_min,
+        box_x1_max=a.box_x1_max,
+        box_x2_min=a.box_x2_min,
+        box_x2_max=a.box_x2_max,
     )
     train_step2(cfg, save_path=ckpt)
 
@@ -112,6 +117,11 @@ def _cmd_workflow(a: argparse.Namespace) -> None:
         lr=a.step2_lr,
         log_every=a.step2_log_every,
         normalize_margin=bool(a.step2_normalize_margin),
+        sample_mode=a.step2_sample_mode,
+        box_x1_min=a.step2_box_x1_min,
+        box_x1_max=a.step2_box_x1_max,
+        box_x2_min=a.step2_box_x2_min,
+        box_x2_max=a.step2_box_x2_max,
     )
 
     step2_plot_cfg = Step2PlotCfg(
@@ -124,6 +134,10 @@ def _cmd_workflow(a: argparse.Namespace) -> None:
         plot_3d=bool(a.step2_plot_3d),
         n=a.step2_plot_n,
         alpha_for_margin=a.step2_plot_alpha,
+        inf_x1_lim=(a.step2_inf_x1_min, a.step2_inf_x1_max),
+        inf_x2_lim=(a.step2_inf_x2_min, a.step2_inf_x2_max),
+        full_x1_lim=(a.step2_full_x1_min, a.step2_full_x1_max),
+        full_x2_lim=(a.step2_full_x2_min, a.step2_full_x2_max),
     )
 
     step3_cfg = Step3Cfg(
@@ -170,6 +184,29 @@ def _cmd_workflow(a: argparse.Namespace) -> None:
         step3_ckpt=step3_ckpt,
         run_step2_plot=not a.no_step2_plot,
         run_step3_plot=not a.no_step3_plot,
+        run_step4_rect=bool(a.run_step4_rect),
+        step4_cfg=(
+            Step4Cfg(
+                ckpt_V=step2_ckpt,
+                ckpt_W=step3_ckpt,
+                outdir=a.step4_outdir,
+                x1_min=a.step4_x1_min,
+                x1_max=a.step4_x1_max,
+                x2_min=a.step4_x2_min,
+                x2_max=a.step4_x2_max,
+                grid=a.step4_grid,
+                outer=Rect(*a.step4_outer),
+                inner=Rect(*a.step4_inner),
+                alpha=a.step4_alpha,
+                plot_3d=bool(a.step4_plot_3d),
+                show=not bool(a.step4_no_show),
+                save=not bool(a.step4_no_save),
+                blend_mode=a.step4_blend_mode,
+                w_scale=a.step4_w_scale,
+            )
+            if a.run_step4_rect
+            else None
+        ),
     )
     run_workflow(cfg, device=a.device, dtype=a.dtype)
     print(f"[workflow] step2_outdir={step2_outdir} step3_outdir={step3_outdir}")
@@ -223,6 +260,8 @@ def _cmd_step4_rect_plot(args) -> None:
         plot_3d=bool(args.plot_3d),
         show=not bool(args.no_show),
         save=not bool(args.no_save),
+        blend_mode=args.blend_mode,
+        w_scale=args.w_scale,
     )
 
     info = plot_step4_rect_blend(cfg)
@@ -248,6 +287,11 @@ def build_parser() -> argparse.ArgumentParser:
     p2t.add_argument("--lr", type=float, default=2e-4)
     p2t.add_argument("--log_every", type=int, default=200)
     p2t.add_argument("--normalize_margin", type=int, default=1, help="1/0")
+    p2t.add_argument("--sample_mode", default="sr1", choices=["sr1", "box"])
+    p2t.add_argument("--box_x1_min", type=float, default=-20.0)
+    p2t.add_argument("--box_x1_max", type=float, default=20.0)
+    p2t.add_argument("--box_x2_min", type=float, default=-20.0)
+    p2t.add_argument("--box_x2_max", type=float, default=20.0)
     p2t.set_defaults(func=_cmd_step2_train)
 
     p2p = sub.add_parser("step2-plot", help="Plot diagnostics for f_inf and full system from a V checkpoint.")
@@ -275,10 +319,10 @@ def build_parser() -> argparse.ArgumentParser:
     p3t.add_argument("--batch", type=int, default=2048)
     p3t.add_argument("--lr", type=float, default=1e-3)
     p3t.add_argument("--log_every", type=int, default=200)
-    p3t.add_argument("--x1_min", type=float, default=-2.0)
-    p3t.add_argument("--x1_max", type=float, default=2.0)
-    p3t.add_argument("--x2_min", type=float, default=-2.0)
-    p3t.add_argument("--x2_max", type=float, default=2.0)
+    p3t.add_argument("--x1_min", type=float, default=-5.0)
+    p3t.add_argument("--x1_max", type=float, default=5.0)
+    p3t.add_argument("--x2_min", type=float, default=-5.0)
+    p3t.add_argument("--x2_max", type=float, default=5.0)
     p3t.add_argument("--r_min", type=float, default=0.0)
     p3t.add_argument("--margin", type=float, default=0.0)
     p3t.add_argument("--alpha_pos", type=float, default=1e-3)
@@ -291,10 +335,10 @@ def build_parser() -> argparse.ArgumentParser:
     p3p.add_argument("--outdir", default="runs/step3")
     p3p.add_argument("--device", default="cpu")
     p3p.add_argument("--dtype", default="float32", choices=["float32", "float64"])
-    p3p.add_argument("--x1_min", type=float, default=-2.0)
-    p3p.add_argument("--x1_max", type=float, default=2.0)
-    p3p.add_argument("--x2_min", type=float, default=-2.0)
-    p3p.add_argument("--x2_max", type=float, default=2.0)
+    p3p.add_argument("--x1_min", type=float, default=-5.0)
+    p3p.add_argument("--x1_max", type=float, default=5.0)
+    p3p.add_argument("--x2_min", type=float, default=-5.0)
+    p3p.add_argument("--x2_max", type=float, default=5.0)
     p3p.add_argument("--grid", type=int, default=401)
     p3p.add_argument("--alpha", type=float, default=1.0)
     p3p.add_argument("--plot_3d", action="store_true")
@@ -322,6 +366,19 @@ def build_parser() -> argparse.ArgumentParser:
     wf.add_argument("--step2_plot_alpha", type=float, default=0.2)
     wf.add_argument("--step2_plot_3d", action="store_true")
     wf.add_argument("--no_step2_plot", action="store_true")
+    wf.add_argument("--step2_sample_mode", default="box", choices=["sr1", "box"])
+    wf.add_argument("--step2_box_x1_min", type=float, default=-20.0)
+    wf.add_argument("--step2_box_x1_max", type=float, default=20.0)
+    wf.add_argument("--step2_box_x2_min", type=float, default=-20.0)
+    wf.add_argument("--step2_box_x2_max", type=float, default=20.0)
+    wf.add_argument("--step2_inf_x1_min", type=float, default=-6.0)
+    wf.add_argument("--step2_inf_x1_max", type=float, default=6.0)
+    wf.add_argument("--step2_inf_x2_min", type=float, default=-6.0)
+    wf.add_argument("--step2_inf_x2_max", type=float, default=6.0)
+    wf.add_argument("--step2_full_x1_min", type=float, default=-20.0)
+    wf.add_argument("--step2_full_x1_max", type=float, default=20.0)
+    wf.add_argument("--step2_full_x2_min", type=float, default=-20.0)
+    wf.add_argument("--step2_full_x2_max", type=float, default=20.0)
 
     wf.add_argument("--step3_hidden", type=int, default=64)
     wf.add_argument("--step3_depth", type=int, default=2)
@@ -335,15 +392,30 @@ def build_parser() -> argparse.ArgumentParser:
     wf.add_argument("--step3_eps_s", type=float, default=1e-2)
     wf.add_argument("--step3_lam_s", type=float, default=1e-3)
 
-    wf.add_argument("--x1_min", type=float, default=-2.0)
-    wf.add_argument("--x1_max", type=float, default=2.0)
-    wf.add_argument("--x2_min", type=float, default=-2.0)
-    wf.add_argument("--x2_max", type=float, default=2.0)
+    wf.add_argument("--x1_min", type=float, default=-5.0)
+    wf.add_argument("--x1_max", type=float, default=5.0)
+    wf.add_argument("--x2_min", type=float, default=-5.0)
+    wf.add_argument("--x2_max", type=float, default=5.0)
 
     wf.add_argument("--step3_plot_grid", type=int, default=401)
     wf.add_argument("--step3_plot_alpha", type=float, default=1.0)
     wf.add_argument("--step3_plot_3d", action="store_true")
     wf.add_argument("--no_step3_plot", action="store_true")
+    wf.add_argument("--run_step4_rect", action="store_true", help="Run step4-rect blend after step3.")
+    wf.add_argument("--step4_outdir", default="runs/step4")
+    wf.add_argument("--step4_x1_min", type=float, default=-10.0)
+    wf.add_argument("--step4_x1_max", type=float, default=10.0)
+    wf.add_argument("--step4_x2_min", type=float, default=-10.0)
+    wf.add_argument("--step4_x2_max", type=float, default=10.0)
+    wf.add_argument("--step4_grid", type=int, default=401)
+    wf.add_argument("--step4_outer", type=float, nargs=4, default=[-7.0, 7.0, -7.0, 7.0])
+    wf.add_argument("--step4_inner", type=float, nargs=4, default=[-5.0, 5.0, -5.0, 5.0])
+    wf.add_argument("--step4_alpha", type=float, default=0.2)
+    wf.add_argument("--step4_plot_3d", action="store_true")
+    wf.add_argument("--step4_no_show", action="store_true")
+    wf.add_argument("--step4_no_save", action="store_true")
+    wf.add_argument("--step4_blend_mode", default="max", choices=["smooth", "max"])
+    wf.add_argument("--step4_w_scale", type=float, default=1.0)
     wf.set_defaults(func=_cmd_workflow)
 
 
@@ -398,6 +470,8 @@ def build_parser() -> argparse.ArgumentParser:
                     help="Inner rectangle in SHIFTED coords: inside -> W only")
 
     p4.add_argument("--alpha", type=float, default=0.2, help="Margin alpha for: Vdot + alpha*V")
+    p4.add_argument("--blend_mode", default="smooth", choices=["smooth", "max"])
+    p4.add_argument("--w_scale", type=float, default=1.0, help="Scale factor for W in max blend mode")
     p4.add_argument("--plot_3d", action="store_true", help="Also plot 3D surfaces")
     p4.add_argument("--no_show", action="store_true", help="Do not show plots interactively")
     p4.add_argument("--no_save", action="store_true", help="Do not save images")
