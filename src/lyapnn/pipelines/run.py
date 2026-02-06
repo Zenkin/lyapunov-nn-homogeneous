@@ -190,6 +190,18 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
 
     p = Params()
     x_eq = float(equilibrium_x1(p))
+    w_box_orig = (
+        w_box[0] + x_eq,
+        w_box[1] + x_eq,
+        w_box[2],
+        w_box[3],
+    )
+    x_box_orig = (
+        x_box[0] + x_eq,
+        x_box[1] + x_eq,
+        x_box[2],
+        x_box[3],
+    )
 
     vinf_cfg = VinfTrainCfg(
         seed=cfg.seed,
@@ -225,6 +237,8 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         ylabel="x2",
         save_path=os.path.join(out_vinf, "vinf_heatmaps.png") if cfg.save else None,
         show=cfg.show,
+        w_box=w_box,
+        x_box=x_box,
     )
     plot_surface_3d(
         X1=X1,
@@ -260,6 +274,8 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         ylabel="x2",
         save_path=os.path.join(out_vfull, "vfull_heatmaps.png") if cfg.save else None,
         show=cfg.show,
+        w_box=w_box_orig,
+        x_box=x_box_orig,
     )
     plot_surface_3d(
         X1=X1f,
@@ -317,6 +333,8 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         ylabel="x2",
         save_path=os.path.join(out_w, "w_heatmaps.png") if cfg.save else None,
         show=cfg.show,
+        w_box=w_box_orig,
+        x_box=x_box_orig,
     )
     plot_surface_3d(
         X1=X1w,
@@ -367,6 +385,9 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         ylabel="x2",
         save_path=os.path.join(out_final, "v_final_heatmaps.png") if cfg.save else None,
         show=cfg.show,
+        w_box=w_box_orig,
+        x_box=x_box_orig,
+        hatch_between=True,
     )
     plot_surface_3d(
         X1=X1f,
