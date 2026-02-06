@@ -80,7 +80,18 @@ def train_step2(cfg: TrainCfg, save_path: Optional[str] = None) -> Tuple[HomogV,
 
     if save_path:
         os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
-        torch.save({"state_dict": V.state_dict(), "meta": {"mu": cfg.mu, "alpha": cfg.alpha}}, save_path)
+        torch.save(
+            {
+                "state_dict": V.state_dict(),
+                "meta": {
+                    "mu": cfg.mu,
+                    "alpha": cfg.alpha,
+                    "hidden": cfg.hidden,
+                    "depth": cfg.depth,
+                },
+            },
+            save_path,
+        )
         print(f"[save] {save_path}")
 
     xeq = equilibrium_x1(p)
