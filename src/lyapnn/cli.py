@@ -53,6 +53,27 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--w_eps_s", type=float, default=1e-2)
     ap.add_argument("--w_lam_s", type=float, default=1e-3)
 
+    ap.add_argument("--plot_inset", action="store_true", help="Enable zoom-in inset for final 3D plots.")
+    inset_mode = ap.add_mutually_exclusive_group()
+    inset_mode.add_argument("--inset_auto", action="store_true", help="Auto inset bounds (default).")
+    inset_mode.add_argument("--inset_manual", action="store_true", help="Manual inset bounds.")
+    ap.add_argument("--inset_zoom_frac", type=float, default=0.2, help="Inset window size as fraction.")
+    ap.add_argument("--inset_x1_min", type=float)
+    ap.add_argument("--inset_x1_max", type=float)
+    ap.add_argument("--inset_x2_min", type=float)
+    ap.add_argument("--inset_x2_max", type=float)
+    ap.add_argument(
+        "--inset_position",
+        type=float,
+        nargs=4,
+        default=(0.58, 0.62, 0.33, 0.3),
+        metavar=("X", "Y", "W", "H"),
+        help="Inset axes position in figure coordinates.",
+    )
+    ap.add_argument("--inset_border_color", default="red")
+    ap.add_argument("--inset_border_lw", type=float, default=3.0)
+    ap.add_argument("--inset_connectors", action="store_true", help="Draw inset connectors.")
+
     return ap
 
 
@@ -88,6 +109,17 @@ def main() -> None:
         w_alpha_pos=args.w_alpha_pos,
         w_eps_s=args.w_eps_s,
         w_lam_s=args.w_lam_s,
+        plot_inset=args.plot_inset,
+        inset_auto=args.inset_auto or not args.inset_manual,
+        inset_zoom_frac=args.inset_zoom_frac,
+        inset_x1_min=args.inset_x1_min,
+        inset_x1_max=args.inset_x1_max,
+        inset_x2_min=args.inset_x2_min,
+        inset_x2_max=args.inset_x2_max,
+        inset_position=tuple(args.inset_position),
+        inset_border_color=args.inset_border_color,
+        inset_border_lw=args.inset_border_lw,
+        inset_connectors=args.inset_connectors,
         show=not args.no_show,
         save=not args.no_save,
     )
