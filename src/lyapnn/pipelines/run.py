@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 import numpy as np
 import torch
@@ -46,6 +46,18 @@ class RunCfg:
     w_alpha_pos: float
     w_eps_s: float
     w_lam_s: float
+    plot_inset: bool = False
+    inset_auto: bool = False
+    inset_zoom_frac: float = 0.2
+    inset_manual: bool = False
+    inset_x1_min: Optional[float] = None
+    inset_x1_max: Optional[float] = None
+    inset_x2_min: Optional[float] = None
+    inset_x2_max: Optional[float] = None
+    inset_position: Tuple[float, float, float, float] = (0.58, 0.62, 0.33, 0.3)
+    inset_border_color: str = "red"
+    inset_border_lw: float = 3.0
+    inset_connectors: bool = True
     show: bool = True
     save: bool = True
 
@@ -160,6 +172,21 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         Vinf = V(Xt).reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
     Vdot_inf = Vdot(V, Xt, p, f_inf, create_graph=False).reshape(cfg.grid, cfg.grid).detach().cpu().numpy()
 
+    inset_manual = cfg.inset_manual if not cfg.inset_auto else False
+    inset_kwargs = {
+        "plot_inset": cfg.plot_inset,
+        "inset_manual": inset_manual,
+        "inset_zoom_frac": cfg.inset_zoom_frac,
+        "inset_x1_min": cfg.inset_x1_min,
+        "inset_x1_max": cfg.inset_x1_max,
+        "inset_x2_min": cfg.inset_x2_min,
+        "inset_x2_max": cfg.inset_x2_max,
+        "inset_position": cfg.inset_position,
+        "inset_border_color": cfg.inset_border_color,
+        "inset_border_lw": cfg.inset_border_lw,
+        "inset_connectors": cfg.inset_connectors,
+    }
+
     plot_heatmap_pair(
         X1=X1,
         X2=X2,
@@ -178,6 +205,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="V_inf (3D)",
         save_path=os.path.join(out_vinf, "vinf_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
     plot_surface_3d(
         X1=X1,
@@ -186,6 +214,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="dV_inf (3D)",
         save_path=os.path.join(out_vinf, "dvinf_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
 
     X1f, X2f, X = make_grid((omega[0], omega[1]), (omega[2], omega[3]), cfg.grid, cfg.device)
@@ -213,6 +242,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="V_full (3D)",
         save_path=os.path.join(out_vfull, "vfull_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
     plot_surface_3d(
         X1=X1f,
@@ -221,6 +251,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="dV_full (3D)",
         save_path=os.path.join(out_vfull, "dvfull_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
 
     w_cfg = WTrainCfg(
@@ -269,6 +300,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="W (3D)",
         save_path=os.path.join(out_w, "w_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
     plot_surface_3d(
         X1=X1w,
@@ -277,6 +309,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="dW (3D)",
         save_path=os.path.join(out_w, "dw_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
 
     Xt_final = X.clone()
@@ -318,6 +351,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="V_final (3D)",
         save_path=os.path.join(out_final, "v_final_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
     plot_surface_3d(
         X1=X1f,
@@ -326,6 +360,7 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="dV_final (3D)",
         save_path=os.path.join(out_final, "dv_final_3d.png") if cfg.save else None,
         show=cfg.show,
+        **inset_kwargs,
     )
 
     return {
