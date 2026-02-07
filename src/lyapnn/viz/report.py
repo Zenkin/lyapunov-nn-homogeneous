@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import ConnectionPatch, Rectangle
 
 
 def _extent(X1: np.ndarray, X2: np.ndarray) -> tuple[float, float, float, float]:
@@ -140,8 +140,17 @@ def plot_surface_3d(
     title: str,
     save_path: Optional[str],
     show: bool,
+    plot_inset: bool = False,
+    inset_auto: bool = True,
+    inset_zoom_frac: float = 0.2,
+    inset_manual_bounds: Optional[Tuple[float, float, float, float]] = None,
+    inset_position: Tuple[float, float, float, float] = (0.58, 0.62, 0.33, 0.3),
+    inset_border_color: str = "red",
+    inset_border_lw: float = 3.0,
+    inset_connectors: bool = False,
 ) -> None:
     from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    from mpl_toolkits.mplot3d import proj3d
 
     fig = plt.figure(figsize=(10, 7))
     ax = fig.add_subplot(111, projection="3d")
@@ -160,6 +169,111 @@ def plot_surface_3d(
     ax.set_zlabel(title)
     ax.set_title(title)
     fig.colorbar(surf, ax=ax, shrink=0.6, pad=0.1)
+
+    if plot_inset:
+        x1_min, x1_max, x2_min, x2_max = _extent(X1, X2)
+        if inset_manual_bounds is not None:
+            inset_x1_min, inset_x1_max, inset_x2_min, inset_x2_max = inset_manual_bounds
+        else:
+            if not inset_auto:
+                raise ValueError("Inset bounds requested without auto mode or manual bounds.")
+            min_idx = np.unravel_index(np.nanargmin(Z), Z.shape)
+            x1_center = float(X1[min_idx])
+            x2_center = float(X2[min_idx])
+            x1_half = 0.5 * inset_zoom_frac * (x1_max - x1_min)
+            x2_half = 0.5 * inset_zoom_frac * (x2_max - x2_min)
+            inset_x1_min = max(x1_min, x1_center - x1_half)
+            inset_x1_max = min(x1_max, x1_center + x1_half)
+            inset_x2_min = max(x2_min, x2_center - x2_half)
+            inset_x2_max = min(x2_max, x2_center + x2_half)
+
+        ax_inset = fig.add_axes(inset_position, projection="3d")
+        ax_inset.plot_surface(
+            X1,
+            X2,
+            Z,
+            rstride=1,
+            cstride=1,
+            linewidth=0,
+            antialiased=True,
+            cmap=surf.cmap,
+            norm=surf.norm,
+        )
+        ax_inset.set_xlim(inset_x1_min, inset_x1_max)
+        ax_inset.set_ylim(inset_x2_min, inset_x2_max)
+        ax_inset.set_xlabel("")
+        ax_inset.set_ylabel("")
+        ax_inset.set_zlabel("")
+        ax_inset.set_title("")
+        roll = getattr(ax, "roll", None)
+        if roll is None:
+            ax_inset.view_init(elev=ax.elev, azim=ax.azim)
+        else:
+            ax_inset.view_init(elev=ax.elev, azim=ax.azim, roll=roll)
+
+        for spine in ax_inset.spines.values():
+            spine.set_edgecolor(inset_border_color)
+            spine.set_linewidth(inset_border_lw)
+
+        z0 = float(np.nanmin(Z))
+        ax.plot(
+            [inset_x1_min, inset_x1_max],
+            [inset_x2_min, inset_x2_min],
+            [z0, z0],
+            color=inset_border_color,
+            lw=inset_border_lw,
+        )
+        ax.plot(
+            [inset_x1_max, inset_x1_max],
+            [inset_x2_min, inset_x2_max],
+            [z0, z0],
+            color=inset_border_color,
+            lw=inset_border_lw,
+        )
+        ax.plot(
+            [inset_x1_max, inset_x1_min],
+            [inset_x2_max, inset_x2_max],
+            [z0, z0],
+            color=inset_border_color,
+            lw=inset_border_lw,
+        )
+        ax.plot(
+            [inset_x1_min, inset_x1_min],
+            [inset_x2_max, inset_x2_min],
+            [z0, z0],
+            color=inset_border_color,
+            lw=inset_border_lw,
+        )
+
+        if inset_connectors:
+            def _to_fig_coords(x: float, y: float, z: float) -> Tuple[float, float]:
+                xp, yp, _ = proj3d.proj_transform(x, y, z, ax.get_proj())
+                x_disp, y_disp = ax.transData.transform((xp, yp))
+                return tuple(fig.transFigure.inverted().transform((x_disp, y_disp)))
+
+            upper_left = _to_fig_coords(inset_x1_min, inset_x2_max, z0)
+            lower_right = _to_fig_coords(inset_x1_max, inset_x2_min, z0)
+
+            con_ul = ConnectionPatch(
+                xyA=(0, 1),
+                coordsA=ax_inset.transAxes,
+                xyB=upper_left,
+                coordsB=fig.transFigure,
+                color=inset_border_color,
+                lw=max(1.0, inset_border_lw / 2.0),
+                clip_on=False,
+            )
+            con_lr = ConnectionPatch(
+                xyA=(1, 0),
+                coordsA=ax_inset.transAxes,
+                xyB=lower_right,
+                coordsB=fig.transFigure,
+                color=inset_border_color,
+                lw=max(1.0, inset_border_lw / 2.0),
+                clip_on=False,
+            )
+            fig.add_artist(con_ul)
+            fig.add_artist(con_lr)
 
     if save_path:
         os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)

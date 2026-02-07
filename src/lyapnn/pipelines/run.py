@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Optional
 
 import numpy as np
 import torch
@@ -46,6 +46,17 @@ class RunCfg:
     w_alpha_pos: float
     w_eps_s: float
     w_lam_s: float
+    plot_inset: bool = False
+    inset_auto: bool = True
+    inset_zoom_frac: float = 0.2
+    inset_x1_min: Optional[float] = None
+    inset_x1_max: Optional[float] = None
+    inset_x2_min: Optional[float] = None
+    inset_x2_max: Optional[float] = None
+    inset_position: Tuple[float, float, float, float] = (0.58, 0.62, 0.33, 0.3)
+    inset_border_color: str = "red"
+    inset_border_lw: float = 3.0
+    inset_connectors: bool = False
     show: bool = True
     save: bool = True
 
@@ -300,6 +311,17 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
 
     V_final, dV_final = _blend_v(Vfull_all, Vdot_full_all, W_all, Wdot_all, w_mask, x_mask)
 
+    inset_manual_bounds = None
+    if cfg.plot_inset and not cfg.inset_auto:
+        if None in (cfg.inset_x1_min, cfg.inset_x1_max, cfg.inset_x2_min, cfg.inset_x2_max):
+            raise ValueError("Manual inset mode requires inset_x1_min/x1_max/x2_min/x2_max.")
+        inset_manual_bounds = (
+            float(cfg.inset_x1_min),
+            float(cfg.inset_x1_max),
+            float(cfg.inset_x2_min),
+            float(cfg.inset_x2_max),
+        )
+
     plot_heatmap_pair(
         X1=X1f,
         X2=X2f,
@@ -318,6 +340,14 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="V_final (3D)",
         save_path=os.path.join(out_final, "v_final_3d.png") if cfg.save else None,
         show=cfg.show,
+        plot_inset=cfg.plot_inset,
+        inset_auto=cfg.inset_auto,
+        inset_zoom_frac=cfg.inset_zoom_frac,
+        inset_manual_bounds=inset_manual_bounds,
+        inset_position=cfg.inset_position,
+        inset_border_color=cfg.inset_border_color,
+        inset_border_lw=cfg.inset_border_lw,
+        inset_connectors=cfg.inset_connectors,
     )
     plot_surface_3d(
         X1=X1f,
@@ -326,6 +356,14 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         title="dV_final (3D)",
         save_path=os.path.join(out_final, "dv_final_3d.png") if cfg.save else None,
         show=cfg.show,
+        plot_inset=cfg.plot_inset,
+        inset_auto=cfg.inset_auto,
+        inset_zoom_frac=cfg.inset_zoom_frac,
+        inset_manual_bounds=inset_manual_bounds,
+        inset_position=cfg.inset_position,
+        inset_border_color=cfg.inset_border_color,
+        inset_border_lw=cfg.inset_border_lw,
+        inset_connectors=cfg.inset_connectors,
     )
 
     return {
