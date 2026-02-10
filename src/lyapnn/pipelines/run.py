@@ -56,6 +56,12 @@ def _ensure_dir(*parts: str) -> str:
     return path
 
 
+def _save_plot_data_npz(path: str, **arrays: np.ndarray) -> None:
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    np.savez_compressed(path, **arrays)
+    print(f"[data] {path}")
+
+
 def _eval_w_and_dot(
     net: WNet,
     xt: torch.Tensor,
@@ -171,6 +177,13 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         save_path=os.path.join(out_vinf, "vinf_heatmaps.png") if cfg.save else None,
         show=cfg.show,
     )
+    _save_plot_data_npz(
+        os.path.join(out_vinf, "vinf_heatmaps.npz"),
+        X1=X1,
+        X2=X2,
+        V=Vinf,
+        Vdot=Vdot_inf,
+    )
     plot_surface_3d(
         X1=X1,
         X2=X2,
@@ -205,6 +218,13 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         ylabel="x2",
         save_path=os.path.join(out_vfull, "vfull_heatmaps.png") if cfg.save else None,
         show=cfg.show,
+    )
+    _save_plot_data_npz(
+        os.path.join(out_vfull, "vfull_heatmaps.npz"),
+        X1=X1f,
+        X2=X2f,
+        V=Vfull,
+        Vdot=Vdot_full,
     )
     plot_surface_3d(
         X1=X1f,
@@ -262,6 +282,13 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         save_path=os.path.join(out_w, "w_heatmaps.png") if cfg.save else None,
         show=cfg.show,
     )
+    _save_plot_data_npz(
+        os.path.join(out_w, "w_heatmaps.npz"),
+        X1=X1w,
+        X2=X2w,
+        V=Wval,
+        Vdot=Wdot,
+    )
     plot_surface_3d(
         X1=X1w,
         X2=X2w,
@@ -311,6 +338,40 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         save_path=os.path.join(out_final, "v_final_heatmaps.png") if cfg.save else None,
         show=cfg.show,
     )
+    _save_plot_data_npz(
+        os.path.join(out_final, "v_final_heatmaps.npz"),
+        X1=X1f,
+        X2=X2f,
+        V=V_final,
+        Vdot=dV_final,
+    )
+
+    _save_plot_data_npz(
+        os.path.join(out_root, "all_plot_data.npz"),
+        vinf_X1=X1,
+        vinf_X2=X2,
+        vinf_V=Vinf,
+        vinf_dV=Vdot_inf,
+        vfull_X1=X1f,
+        vfull_X2=X2f,
+        vfull_V=Vfull,
+        vfull_dV=Vdot_full,
+        w_X1=X1w,
+        w_X2=X2w,
+        w_V=Wval,
+        w_dV=Wdot,
+        final_X1=X1f,
+        final_X2=X2f,
+        final_V=V_final,
+        final_dV=dV_final,
+        final_Vfull_all=Vfull_all,
+        final_dVfull_all=Vdot_full_all,
+        final_W_all=W_all,
+        final_dW_all=Wdot_all,
+        final_w_mask=w_mask.astype(np.uint8),
+        final_x_mask=x_mask.astype(np.uint8),
+    )
+
     plot_surface_3d(
         X1=X1f,
         X2=X2f,

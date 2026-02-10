@@ -34,3 +34,6 @@ Notes:
 - `W_box` and `X_box` are in **shifted coordinates** (centered at x_eq).
 - Heatmaps are saved as a single image with V and dV side-by-side; bad regions highlight `V<=0` or `dV>=0`.
 - 3D plots are shown sequentially so you can rotate them.
+- In addition to PNG plots, all numeric data used for the plots is saved in NumPy format:
+  - per stage: `vinf/vinf_heatmaps.npz`, `vfull/vfull_heatmaps.npz`, `w/w_heatmaps.npz`, `final/v_final_heatmaps.npz`
+  - aggregated: `all_plot_data.npz` in the run root directory.
