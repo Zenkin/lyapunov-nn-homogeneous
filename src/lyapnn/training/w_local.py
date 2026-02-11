@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 import os
 
 import numpy as np
@@ -32,6 +32,14 @@ class WTrainCfg:
     alpha_pos: float = 1e-3
     eps_s: float = 1e-2
     lam_s: float = 1e-3
+    inner_x1_min: Optional[float] = None
+    inner_x1_max: Optional[float] = None
+    inner_x2_min: Optional[float] = None
+    inner_x2_max: Optional[float] = None
+    inner_half_ratio: float = 0.5
+    eps_transition: float = 1e-2
+    lam_transition: float = 1.0
+    lam_dom: float = 1.0
 
 
 class WNet(nn.Module):
@@ -94,6 +102,12 @@ def _compute_loss(
     alpha_pos: float,
     eps_s: float,
     lam_s: float,
+    v_inner: Optional[torch.Tensor],
+    mask_transition: Optional[torch.Tensor],
+    mask_outer: Optional[torch.Tensor],
+    eps_transition: float,
+    lam_transition: float,
+    lam_dom: float,
 ) -> Tuple[torch.Tensor, Dict[str, float]]:
     x_tilde = x_tilde.requires_grad_(True)
 
@@ -120,7 +134,27 @@ def _compute_loss(
     s_gap = torch.relu(float(eps_s) - smin)
     loss_s = torch.mean(s_gap * s_gap)
 
-    total = loss_main + loss_pos + float(lam_s) * loss_s
+    zero = torch.zeros((), device=x_tilde.device, dtype=x_tilde.dtype)
+
+    if mask_transition is not None and torch.any(mask_transition):
+        tr_gap = torch.relu(float(eps_transition) - W[mask_transition])
+        loss_transition = torch.mean(tr_gap * tr_gap)
+    else:
+        loss_transition = zero
+
+    if v_inner is not None and mask_outer is not None and torch.any(mask_outer):
+        dom_gap = torch.relu(v_inner[mask_outer] - W[mask_outer])
+        loss_dom = torch.mean(dom_gap * dom_gap)
+    else:
+        loss_dom = zero
+
+    total = (
+        loss_main
+        + loss_pos
+        + float(lam_s) * loss_s
+        + float(lam_transition) * loss_transition
+        + float(lam_dom) * loss_dom
+    )
 
     with torch.no_grad():
         diag = {
@@ -128,6 +162,8 @@ def _compute_loss(
             "loss_main": float(loss_main.item()),
             "loss_pos": float(loss_pos.item()),
             "loss_s": float(loss_s.item()),
+            "loss_transition": float(loss_transition.item()),
+            "loss_dom": float(loss_dom.item()),
             "max_S": float(S.max().item()),
             "frac_S_pos_%": float((S > 0.0).float().mean().item()) * 100.0,
             "min_smin": float(smin.min().item()),
@@ -135,7 +171,39 @@ def _compute_loss(
     return total, diag
 
 
-def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
+def _inner_masks(x_tilde: torch.Tensor, cfg: WTrainCfg) -> Tuple[Optional[torch.Tensor], Optional[torch.Tensor]]:
+    inner_bounds = (
+        cfg.inner_x1_min,
+        cfg.inner_x1_max,
+        cfg.inner_x2_min,
+        cfg.inner_x2_max,
+    )
+    if any(v is None for v in inner_bounds):
+        return None, None
+
+    x1_min, x1_max, x2_min, x2_max = (float(v) for v in inner_bounds)
+    in_inner = (
+        (x_tilde[:, 0] >= x1_min) & (x_tilde[:, 0] <= x1_max) &
+        (x_tilde[:, 1] >= x2_min) & (x_tilde[:, 1] <= x2_max)
+    )
+
+    r = float(cfg.inner_half_ratio)
+    if not (0.0 < r < 1.0):
+        raise ValueError("inner_half_ratio must be in (0,1)")
+
+    hx1_min, hx1_max = r * x1_min, r * x1_max
+    hx2_min, hx2_max = r * x2_min, r * x2_max
+    in_half = (
+        (x_tilde[:, 0] >= hx1_min) & (x_tilde[:, 0] <= hx1_max) &
+        (x_tilde[:, 1] >= hx2_min) & (x_tilde[:, 1] <= hx2_max)
+    )
+
+    mask_transition = in_inner & (~in_half)
+    mask_outer = ~in_inner
+    return mask_transition, mask_outer
+
+
+def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt", v_inner_model: Optional[nn.Module] = None) -> WNet:
     device = torch.device(cfg.device)
     dtype = torch.float32 if cfg.dtype == "float32" else torch.float64
 
@@ -153,6 +221,10 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
     model = WNet(hidden=cfg.hidden, depth=cfg.depth).to(device=device, dtype=dtype)
     opt = optim.Adam(model.parameters(), lr=float(cfg.lr))
 
+    if v_inner_model is not None:
+        v_inner_model = v_inner_model.to(device=device, dtype=dtype)
+        v_inner_model.eval()
+
     for step in range(int(cfg.steps) + 1):
         x = _sample_rect(int(cfg.batch) * 2, cfg.x1_min, cfg.x1_max, cfg.x2_min, cfg.x2_max, device, dtype)
         x = _apply_rmin_mask(x, cfg.r_min)
@@ -164,6 +236,13 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
             idx = torch.randperm(x.shape[0], device=device)[: int(cfg.batch)]
             x = x[idx]
 
+        mask_transition, mask_outer = _inner_masks(x, cfg)
+        if v_inner_model is not None:
+            with torch.no_grad():
+                v_inner = v_inner_model(x).squeeze(-1)
+        else:
+            v_inner = None
+
         opt.zero_grad(set_to_none=True)
         loss, diag = _compute_loss(
             model=model,
@@ -174,6 +253,12 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
             alpha_pos=cfg.alpha_pos,
             eps_s=cfg.eps_s,
             lam_s=cfg.lam_s,
+            v_inner=v_inner,
+            mask_transition=mask_transition,
+            mask_outer=mask_outer,
+            eps_transition=cfg.eps_transition,
+            lam_transition=cfg.lam_transition,
+            lam_dom=cfg.lam_dom,
         )
         loss.backward()
         opt.step()
@@ -183,6 +268,7 @@ def train_w_local(cfg: WTrainCfg, save_path: str = "w_model.pt") -> WNet:
                 f"[w {step:6d}/{cfg.steps}] "
                 f"loss {diag['loss_total']:.3e} | main {diag['loss_main']:.3e} | "
                 f"pos {diag['loss_pos']:.3e} | s {diag['loss_s']:.3e} | "
+                f"tr {diag['loss_transition']:.3e} | dom {diag['loss_dom']:.3e} | "
                 f"maxS {diag['max_S']:.3e} | frac(S>0) {diag['frac_S_pos_%']:.3f}% | "
                 f"min_smin {diag['min_smin']:.3e}"
             )

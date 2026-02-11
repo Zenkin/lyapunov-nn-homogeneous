@@ -46,6 +46,10 @@ class RunCfg:
     w_alpha_pos: float
     w_eps_s: float
     w_lam_s: float
+    w_inner_half_ratio: float
+    w_eps_transition: float
+    w_lam_transition: float
+    w_lam_dom: float
     show: bool = True
     save: bool = True
 
@@ -262,8 +266,16 @@ def run_pipeline(cfg: RunCfg) -> Dict[str, Any]:
         alpha_pos=cfg.w_alpha_pos,
         eps_s=cfg.w_eps_s,
         lam_s=cfg.w_lam_s,
+        inner_x1_min=x_box[0],
+        inner_x1_max=x_box[1],
+        inner_x2_min=x_box[2],
+        inner_x2_max=x_box[3],
+        inner_half_ratio=cfg.w_inner_half_ratio,
+        eps_transition=cfg.w_eps_transition,
+        lam_transition=cfg.w_lam_transition,
+        lam_dom=cfg.w_lam_dom,
     )
-    Wnet = train_w_local(w_cfg, save_path=os.path.join(out_w, "w_model.pt"))
+    Wnet = train_w_local(w_cfg, save_path=os.path.join(out_w, "w_model.pt"), v_inner_model=V)
     Wnet = Wnet.to(device=dev, dtype=dt)
 
     X1w, X2w, Xt_w = make_grid((w_box[0], w_box[1]), (w_box[2], w_box[3]), cfg.grid, cfg.device)
