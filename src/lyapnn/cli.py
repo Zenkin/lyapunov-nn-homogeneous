@@ -52,6 +52,10 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--w_alpha_pos", type=float, default=1e-3)
     ap.add_argument("--w_eps_s", type=float, default=1e-2)
     ap.add_argument("--w_lam_s", type=float, default=1e-3)
+    ap.add_argument("--w_inner_half_ratio", type=float, default=0.5)
+    ap.add_argument("--w_eps_transition", type=float, default=1e-2)
+    ap.add_argument("--w_lam_transition", type=float, default=1.0)
+    ap.add_argument("--w_lam_dom", type=float, default=1.0)
 
     return ap
 
@@ -88,6 +92,10 @@ def main() -> None:
         w_alpha_pos=args.w_alpha_pos,
         w_eps_s=args.w_eps_s,
         w_lam_s=args.w_lam_s,
+        w_inner_half_ratio=args.w_inner_half_ratio,
+        w_eps_transition=args.w_eps_transition,
+        w_lam_transition=args.w_lam_transition,
+        w_lam_dom=args.w_lam_dom,
         show=not args.no_show,
         save=not args.no_save,
     )
