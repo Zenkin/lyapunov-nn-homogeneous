@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import torch
-from models import W, Params, FullSystem
+from models import build_W, Params, FullSystem, cfg
 from viz import plot_heatmap, VIZ_DEBUG, VIZ_SLIDES
 from grid import make_grid
 
@@ -69,7 +69,7 @@ def main():
 
     # Создаём модель W(xt); приводим ее к тому же dtype/device,
     # что и рабочие тензоры (чтобы избежать mismatch)
-    w = W(hidden=64).to(
+    w = build_W(cfg.W_MODEL, hidden=cfg.W_HIDDEN, n=2).to(
         device=pts_x_torch.device,
         dtype=pts_x_torch.dtype
     )
