@@ -1,0 +1,50 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# =========================
+# Virtual environments
+# =========================
+venv/
+.env/
+.venv/
+
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/
+
+# =========================
+# PyTorch / Models / Training artifacts
+# =========================
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Training outputs
+runs/
+checkpoints/
+logs/
+tensorboard/
+
+# =========================
+# Data files
+# =========================
+*.npz
+*.npy
+*.csv
+*.h5
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
