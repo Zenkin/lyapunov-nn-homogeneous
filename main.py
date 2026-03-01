@@ -102,36 +102,127 @@ def main():
     L2 = loss_L2_article(w, pts_tilda_torch_with_grad, f_tilde)
     print("L2:", float(L2.detach().cpu()))
 
-    # Возвращаем значения к форме (grid, grid)
-    # для визуализации на двумерной сетке
-    W_grid = W_flat.reshape(grid, grid).detach().cpu().numpy()
-    dW_grid = dW_flat.reshape(grid, grid).detach().cpu().numpy()
+    import os
 
-    plot_heatmap(
-        X1_t,
-        X2_t,
-        W_grid,
-        title="W(xt)",
-        cbar_label="W(xt)",
-        xlabel="x_{1t}",
-        ylabel="x_{2t}",
-        save_path="runs/figs/W_tilde.png",
-        eq_point=(0.0, 0.0),
-        cfg=VIZ_SLIDES,
-    )
+    os.makedirs("runs", exist_ok=True)
 
-    plot_heatmap(
-        X1_t,
-        X2_t,
-        dW_grid,
-        title="dW(xt)",
-        cbar_label="dW(xt)",
-        xlabel="x_{1t}",
-        ylabel="x_{2t}",
-        save_path="runs/figs/dW_tilde.png",
-        eq_point=(0.0, 0.0),
-        cfg=VIZ_SLIDES,
-    )
+    lr = 1e-3
+    steps = 100000
+    print_every = 100
+
+    opt = torch.optim.Adam(w.parameters(), lr=lr)
+
+    best_loss = float("inf")
+    best_iter = -1
+    best_path = "runs/W_article_best.pt"
+
+    for it in range(steps):
+        opt.zero_grad(set_to_none=True)
+
+        # ----- семплируем точки внутри области -----
+        N = 4096
+        xt = (2.0 * torch.rand(N, 2, device=pts_x_torch.device, dtype=pts_x_torch.dtype) - 1.0) * 4.0
+        xt.requires_grad_(True)
+
+        f_t = sys.f_tilde(xt, x_eq_td)
+
+        # ====== L2 ======
+        w_vec = w.T(xt)
+
+        jv_parts = []
+        for k in range(w_vec.shape[1]):
+            Tk = w_vec[:, k]
+            grad_Tk = torch.autograd.grad(
+                Tk.sum(),
+                xt,
+                create_graph=True,
+                retain_graph=True
+            )[0]
+            jv_parts.append((grad_Tk * f_t).sum(dim=1))
+
+        jv = torch.stack(jv_parts, dim=1)
+
+        w2 = (w_vec * w_vec).sum(dim=1)
+        wf = (w_vec * jv).sum(dim=1)
+
+        term = 2.0 * wf + w2
+        L2 = torch.relu(term).mean()
+
+        # backward
+        L2.backward()
+        opt.step()
+
+        # поддерживаем T(0)=0
+        w.project_T0()
+
+        # ----- сохраняем лучший вариант -----
+        current_loss = float(L2.detach().cpu())
+
+        if current_loss < best_loss:
+            best_loss = current_loss
+            best_iter = it
+
+            torch.save({
+                "model_state_dict": w.state_dict(),
+                "iter": it,
+                "loss": best_loss,
+            }, best_path)
+
+            print(f"[best] saved at iter={it}, L2={best_loss:.6e}")
+
+        # ----- лог -----
+        if (it % print_every) == 0 or it == steps - 1:
+            with torch.no_grad():
+                violation = (term > 0).float().mean()
+
+                print(
+                    f"[{it:5d}] "
+                    f"L2={current_loss:.6e}  "
+                    f"W_mean={float(w2.mean()):.3e}  "
+                    f"W_max={float(w2.max()):.3e}  "
+                    f"viol_rate={float(violation):.3f}"
+                )
+
+    print(f"\nTraining finished.")
+    print(f"Best model: iter={best_iter}, L2={best_loss:.6e}")
+    print(f"Saved to: {best_path}")
+
+    checkpoint = torch.load("runs/W_article_best.pt", map_location=pts_x_torch.device)
+    w.load_state_dict(checkpoint["model_state_dict"])
+    print("Loaded best model from iter:", checkpoint["iter"])
+
+    # ===== eval on grid after training =====
+    xtg = pts_tilda_torch.detach().clone().requires_grad_(True)  # (N,2) grid points, requires grad
+    ftg = sys.f_tilde(xtg, x_eq_td)  # (N,2)
+
+    w_vec = w.T(xtg)  # (N,2)
+    w2 = (w_vec * w_vec).sum(dim=1)  # W (N,)
+
+    # jv = DT f
+    jv_parts = []
+    for k in range(w_vec.shape[1]):
+        Tk = w_vec[:, k]
+        grad_Tk = torch.autograd.grad(
+            Tk.sum(), xtg,
+            create_graph=False,
+            retain_graph=True
+        )[0]
+        jv_parts.append((grad_Tk * ftg).sum(dim=1))
+    jv = torch.stack(jv_parts, dim=1)  # (N,2)
+
+    wf = (w_vec * jv).sum(dim=1)  # (N,)
+    dW = 2.0 * wf  # dW = 2 T^T DT f
+    term = dW + w2  # what L2 enforces <= 0
+    viol = (term > 0).to(w2.dtype)
+
+    W_grid = w2.reshape(grid, grid).detach().cpu().numpy()
+    dW_grid = dW.reshape(grid, grid).detach().cpu().numpy()
+    term_grid = term.reshape(grid, grid).detach().cpu().numpy()
+    viol_grid = viol.reshape(grid, grid).detach().cpu().numpy()
+
+    plot_heatmap(X1_t, X2_t, term_grid, title="dW(xt)+W(xt)", cbar_label="dW+W",
+                 xlabel="x_{1t}", ylabel="x_{2t}", save_path="runs/figs/term_tilde.png",
+                 eq_point=(0.0, 0.0), cfg=VIZ_SLIDES)
 
 
 if __name__ == "__main__":
