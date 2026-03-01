@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import torch
-from models import build_W, Params, FullSystem, cfg
+from models import build_W, Params, FullSystem, cfg, loss_L2_article
 from viz import plot_heatmap, VIZ_DEBUG, VIZ_SLIDES
 from grid import make_grid
 
@@ -99,6 +99,9 @@ def main():
     # dW(xt) = ∇W(xt) · f_tilde(xt)
     dW_flat = (gradW * f_tilde).sum(dim=1)
 
+    L2 = loss_L2_article(w, pts_tilda_torch_with_grad, f_tilde)
+    print("L2:", float(L2.detach().cpu()))
+
     # Возвращаем значения к форме (grid, grid)
     # для визуализации на двумерной сетке
     W_grid = W_flat.reshape(grid, grid).detach().cpu().numpy()
@@ -127,32 +130,6 @@ def main():
         ylabel="x_{2t}",
         save_path="runs/figs/dW_tilde.png",
         eq_point=(0.0, 0.0),
-        cfg=VIZ_SLIDES,
-    )
-
-    plot_heatmap(
-        X1_x,
-        X2_x,
-        W_grid,
-        title="W(x)",
-        cbar_label="W(x)",
-        xlabel="x_{1}",
-        ylabel="x_{2}",
-        save_path="runs/figs/W.png",
-        eq_point=x_eq_np,
-        cfg=VIZ_SLIDES,
-    )
-
-    plot_heatmap(
-        X1_x,
-        X2_x,
-        dW_grid,
-        title="dW(x)",
-        cbar_label="dW(x)",
-        xlabel="x_{1}",
-        ylabel="x_{2}",
-        save_path="runs/figs/dW.png",
-        eq_point=x_eq_np,
         cfg=VIZ_SLIDES,
     )
 
