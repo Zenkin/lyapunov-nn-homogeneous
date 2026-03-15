@@ -1,0 +1,21 @@
+y.shape =
+torch.Size([10000, 2])
+
+sphere_val min/max =
+1.0 1.0
+
+|y1| min/max =
+6.822428787822687e-05 0.9999979441541109
+
+|y2| min/max =
+4.226502319654573e-12 0.999863556078797
+
+sign counts:
+y1_pos=4979, y1_neg=5021
+y2_pos=4989, y2_neg=5011
+
+        [ 0.5701, -0.1848],
+        [ 0.5387, -0.2128],
+        [-0.4101, -0.3480]], dtype=torch.float64)
+
+OK: sample_r_sphere_r12 sanity checks passed.

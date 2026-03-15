@@ -1,0 +1,19 @@
+dV =
+tensor([-11.,   8., -27.], dtype=torch.float64)
+                                               
+dV_expected =                                  
+tensor([-11.,   8., -27.], dtype=torch.float64)
+
+homogeneous loss metrics:
+loss: 1.780094136001
+loss_decay: 0.991299247566
+loss_pos: 0.788794888435
+v_min: 0.155281602721
+v_mean: 0.211205111565
+dV_inf_max: 0.102300064766
+viol_decay_rate: 1.000000000000
+viol_pos_rate: 1.000000000000
+
+parameter grad_norm sum = 3.477977134394
+
+OK: losses sanity checks passed.
