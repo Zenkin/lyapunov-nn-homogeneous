@@ -43,6 +43,7 @@ def loss_L2_article(model, xt, f_tilde):
 
     return (loss_decay + loss_pos).mean()
 
+
 def scalar_lie_derivative(values, inputs, vector_field, create_graph: bool):
     """
     Считает скалярную производную Ли для батча:
@@ -90,7 +91,6 @@ def scalar_lie_derivative(values, inputs, vector_field, create_graph: bool):
 
     dV = (grad_values * vector_field).sum(dim=1)
     return dV
-
 
 
 def loss_homogeneous_sphere(model, y, f_inf_y):
