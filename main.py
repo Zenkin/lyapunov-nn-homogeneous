@@ -224,6 +224,10 @@ def main():
                  xlabel="x_{1t}", ylabel="x_{2t}", save_path="runs/figs/term_tilde.png",
                  eq_point=(0.0, 0.0), cfg=VIZ_SLIDES)
 
+    plot_heatmap(X1_t, X2_t, dW_grid, title="dW_grid", cbar_label="dW_grid",
+                 xlabel="x_{1t}", ylabel="x_{2t}", save_path="runs/figs/dW_grid.png",
+                 eq_point=(0.0, 0.0), cfg=VIZ_SLIDES)
+
 
 if __name__ == "__main__":
     main()
