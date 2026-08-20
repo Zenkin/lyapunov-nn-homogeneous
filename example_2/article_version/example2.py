@@ -2,7 +2,7 @@
 
 This module contains only formulas and numerical values explicitly given in
 the article. Parameters absent from the article are required as arguments and
-are not assigned reconstructed defaults here.
+are not assigned inferred defaults here.
 """
 
 from __future__ import annotations
@@ -476,7 +476,7 @@ def validate_and_plot(
     config: ImplementationConfig,
     outdir: Path,
 ) -> dict[str, float | int | str]:
-    """Run independent finite-grid checks and save article-style figures."""
+    """Run boundary-including finite-grid checks and save article-style figures."""
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import TwoSlopeNorm
@@ -509,7 +509,9 @@ def validate_and_plot(
     switch_to_local = all_learned_value < config.kappa
 
     metrics: dict[str, float | int | str] = {
-        "validation_grid_convention": "independent grid including boundary",
+        "validation_grid_convention": (
+            "boundary-including grid; contains the midpoint training grid"
+        ),
         "validation_grid_points": len(validation_grid),
         "validation_points_in_X_minus_B_kappa_over_2": len(outer_points),
         "minimum_W_on_X_minus_B_kappa_over_2": learned_value.min().item(),

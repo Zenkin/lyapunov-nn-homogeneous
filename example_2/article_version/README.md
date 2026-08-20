@@ -1,6 +1,6 @@
 # Article version: nonlinear-pendulum stabilization
 
-This folder contains a source-faithful reconstruction of Section V-B of the
+This folder contains the reference implementation of Section V-B of the
 article. It reproduces the displayed system, matrix `A`, network sizes,
 activation, pointwise loss, training-domain size, and switching inequality.
 It does not claim that the resulting numerical weights or plots are the
@@ -85,7 +85,7 @@ check is available with `--quick`; its output is not a reference result.
 The article does not report `K`, `P`, `kappa`, `epsilon`, the optimizer,
 learning rate, epoch count, random seed, trained weights, or whether the
 uniform grid includes the boundary. These values affect the experiment and
-cannot be reconstructed from the displayed formulas.
+cannot be recovered from the displayed formulas.
 
 The current reproducible run uses
 
@@ -102,8 +102,9 @@ steps   = 5000
 `K` assigns poles `-1` and `-2` to the closed-loop system formed with the
 printed `A_article`. `P` solves the corresponding Lyapunov equation with
 right-hand side `-I`. The remaining values are stated implementation choices,
-not recovered values. The training grid uses cell midpoints; the independent
-`201 x 201` validation grid includes the boundary.
+not recovered values. The training grid uses cell midpoints. The
+boundary-including `201 x 201` validation grid contains those midpoint points,
+so it is a denser check but not an independent sample.
 
 ## Figures and interpretation
 
@@ -120,7 +121,7 @@ This is intentionally not labelled as the article's "combined Lyapunov
 function": the control section does not give a formula for that function and
 states that it may differ from a combination of `W` and `V_l`.
 
-On the independent finite grid:
+On the boundary-including finite grid, which overlaps the training grid:
 
 ```text
 min W on X \ B_(kappa/2)                 = +0.007428679777545624

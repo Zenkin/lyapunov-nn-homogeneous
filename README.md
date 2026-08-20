@@ -41,7 +41,7 @@ python example_1/improved/example1.py \
   --outdir example_1/improved/results/reference
 ```
 
-Run the article-version reconstruction of Example 2:
+Run the article-version implementation of Example 2:
 
 ```bash
 python example_2/article_version/example2.py \
@@ -81,9 +81,10 @@ nonnegative-derivative fraction  = 0
 The corresponding configuration, validation design, and limitations are
 documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
 
-For the recorded Example 2 reconstruction, the independent `201 x 201` grid
-found sparse derivative-sign violations. They are retained in the published
-figures and numerical arrays; see
+For the recorded Example 2 implementation, the boundary-including `201 x 201`
+grid found sparse derivative-sign violations. This grid contains the midpoint
+training grid, so it is not an independent sample. The violations are retained
+in the published figures and numerical arrays; see
 [`example_2/article_version/AUDIT.md`](example_2/article_version/AUDIT.md).
 
 ## Implementation and validation notes
@@ -123,6 +124,20 @@ example_1/
 example_2/
   README.md
   article_version/
+    example2.py
+    test_example2.py
+    README.md
+    AUDIT.md
+    requirements.txt
+  corrected_matrix/
+    example2.py
+    invariance_audit.py
+    switching_audit.py
+    boundary_matching.py
+    test_example2.py
+    README.md
+    AUDIT.md
+  improved/
     example2.py
     test_example2.py
     README.md

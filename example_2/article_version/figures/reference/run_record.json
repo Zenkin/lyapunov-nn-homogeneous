@@ -59,7 +59,7 @@
     "nonnegative_local_derivative_fraction_on_B_kappa": 0.0,
     "nonnegative_switched_derivative_fraction_on_X": 0.0016089108910891088,
     "points_using_local_control": 50,
-    "validation_grid_convention": "independent grid including boundary",
+    "validation_grid_convention": "boundary-including grid; contains the midpoint training grid",
     "validation_grid_points": 40401,
     "validation_points_in_X_minus_B_kappa_over_2": 40284
   }
