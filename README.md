@@ -3,8 +3,8 @@
 This is the official source-code repository accompanying the article
 *A neural network-based stability analysis and stabilization through
 homogeneous approximations*. The repository is maintained by the authors of
-the article and contains the public implementations of its first numerical
-example.
+the article and contains the public implementations of its numerical
+examples.
 
 The code is organized around two versions of the same idea: learn a Lyapunov
 candidate for the homogeneous approximation at infinity, learn a second
@@ -15,9 +15,16 @@ candidate on the bounded transition region, and unite the two functions.
 | [`example_1/original`](example_1/original) | Minimum-based gluing from equation (16) | Public implementation of the construction presented in the article |
 | [`example_1/improved`](example_1/improved) | Positive-definite inner model with smooth level-set gluing | Subsequent modification developed by the authors after revisiting the numerical example |
 
-Both folders are self-contained so that the equations, training loop,
-validation procedure, and saved results can be inspected without following a
-framework layer.
+The literal mathematical core of the nonlinear-pendulum stabilization example
+is in [`example_2/article_version`](example_2/article_version). It retains the
+linear matrix printed in the article and documents its verified discrepancy
+with the Jacobian of the displayed nonlinear model. Its reproducible numerical
+run uses explicitly labelled current choices for the unreported values of
+`K`, `P`, `kappa`, `epsilon`, and the training hyperparameters.
+
+Both Example 1 folders are self-contained so that the equations, training
+loop, validation procedure, and saved results can be inspected without
+following a framework layer.
 
 ## Quick start
 
@@ -34,11 +41,19 @@ python example_1/improved/example1.py \
   --outdir example_1/improved/results/reference
 ```
 
+Run the article-version reconstruction of Example 2:
+
+```bash
+python example_2/article_version/example2.py \
+  --outdir example_2/article_version/figures/reference
+```
+
 Run the implementation tests:
 
 ```bash
 python -m unittest example_1.original.test_example1
 python -m unittest example_1.improved.test_example1
+python -m unittest example_2.article_version.test_example2
 ```
 
 Short smoke runs are available for installation checks:
@@ -65,6 +80,11 @@ nonnegative-derivative fraction  = 0
 
 The corresponding configuration, validation design, and limitations are
 documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
+
+For the recorded Example 2 reconstruction, the independent `201 x 201` grid
+found sparse derivative-sign violations. They are retained in the published
+figures and numerical arrays; see
+[`example_2/article_version/AUDIT.md`](example_2/article_version/AUDIT.md).
 
 ## Implementation and validation notes
 
@@ -97,6 +117,14 @@ example_1/
   improved/
     example1.py
     test_example1.py
+    README.md
+    AUDIT.md
+    requirements.txt
+example_2/
+  README.md
+  article_version/
+    example2.py
+    test_example2.py
     README.md
     AUDIT.md
     requirements.txt

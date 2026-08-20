@@ -1,0 +1,129 @@
+# Audit record: article version of Example 2
+
+## Values taken directly from the article
+
+Section V-B states:
+
+- `omega=1`;
+- `X=[-pi,pi] x [-4,4]`;
+- a uniform `100 x 100` training grid on `X \ B_(kappa/2)`;
+- 32 hidden units and hyperbolic tangent activation for `W`;
+- 20 hidden units and the same activation for the control network;
+- local control `u_l=Kx`;
+- local candidate `V_l=x^T P x`;
+- `(A+BK)^T P + P(A+BK) < 0`.
+
+Equations (8) and (9) provide the zero-at-origin network and square Lyapunov
+candidate. Section IV-B provides the local-stabilization loss and the switching
+rule used in this folder.
+
+## Verified inconsistency retained by this version
+
+For
+
+```text
+F(x,u) = (x2, omega^2 sin(x1) + cos(x1) u),
+```
+
+the Jacobians at `(x,u)=(0,0)` are
+
+```text
+dF/dx = [[0,       1],
+         [omega^2, 0]],
+dF/du = [[0],
+         [1]].
+```
+
+The article instead prints
+
+```text
+A_article = [[0, 1],
+             [0, 0]].
+```
+
+At `omega=1`, the maximum absolute matrix difference is exactly `1`. The test
+`test_article_matrix_is_not_the_jacobian_of_the_printed_system` confirms the
+Jacobian by centered finite differences. The article matrix is deliberately
+retained here because this folder is the literal version.
+
+## Information not present in the available sources
+
+The article, the authors' response to the reviewers, the current repository,
+and its available history do not provide:
+
+- numerical `K` and `P`;
+- `kappa` and `epsilon`;
+- optimizer, learning rate, epoch count, and random seed;
+- exact grid endpoint convention;
+- trained weights;
+- numerical training or independent-validation results;
+- trajectories or an empirical region of attraction.
+
+This is a statement about the sources inspected for this implementation, not
+a claim that such data never existed elsewhere.
+
+## Current reproducible reconstruction
+
+To make the equations executable, this repository introduces and labels the
+following current choices:
+
+- `K=(-2,-3)`, obtained by placing the poles of `A_article+BK` at `-1,-2`;
+- `P=[[5/4,1/4],[1/4,1/4]]`, which gives the exact matrix identity
+  `(A_article+BK)^T P + P(A_article+BK)=-I`;
+- `kappa=0.05`, `epsilon=0.1`;
+- Adam with learning rate `1e-3`, 5,000 full-grid steps, seed `20260820`;
+- cell-midpoint training coordinates and a separate boundary-including
+  `201 x 201` validation grid.
+
+The pointwise loss is the displayed loss. Its arithmetic mean is minimized;
+the article does not specify the reduction across grid points.
+
+The independent validation record is:
+
+```text
+min W on X \ B_(kappa/2)                 = +0.007428679777545624
+max DW F under learned control            = +0.055950975617497595
+fraction with learned derivative >= 0     = 0.001141892562804091
+max DV_l F under local control on B_kappa = -0.0004930743848926873
+max DW F under the article switch          = +3.6885728651168144
+fraction with switched derivative >= 0    = 0.0016089108910891088
+local-switch points outside B_kappa        = 29 of 50 switched points
+```
+
+The last line directly audits the missing relation between the neural
+switching set `{W<kappa}` and the verified local set `B_kappa`. These sampled
+sets are not nested for the recorded run.
+
+## Figure semantics
+
+The application section names a combined function `V_theta1,theta2`, but the
+control section gives no formula for it and explicitly notes that a continuous
+Lyapunov function may differ from a combination of `W` and `V_l`. Therefore,
+the generated figures show quantities that are actually defined:
+
+1. `W(x;theta)` with `V_l=kappa/2`, `V_l=kappa`, and `W=kappa` contours;
+2. `DW F` for `W` under the printed switching rule.
+
+They are article-style reconstruction figures, not asserted replicas of the
+unavailable original numerical arrays.
+
+## Scope of the current tests
+
+The tests establish deterministic identities only:
+
+1. the nonlinear field agrees with the displayed formula;
+2. the displayed `A` and `B` are reproduced without correction;
+3. the displayed `A` differs from the actual Jacobian;
+4. the local Lyapunov matrix is assembled as printed;
+5. both neural maps are zero at the origin;
+6. `W=T^T T` is nonnegative;
+7. the implemented pointwise loss agrees with the bracket notation and
+   propagates finite gradients to both networks;
+8. the grid convention is explicit;
+9. the switching inequality is implemented with the article's strict and
+   non-strict branches.
+
+The tests do not establish positive definiteness of a trained candidate,
+negative definiteness of its derivative, closed-loop stability, or exact
+reproduction of the historical Figures 3 and 4. Those questions are reported
+separately by finite-grid validation.

@@ -1,0 +1,66 @@
+{
+  "article_specification": {
+    "angle_max": 3.141592653589793,
+    "angle_min": -3.141592653589793,
+    "controller_hidden_units": 20,
+    "grid_points_per_axis": 100,
+    "lyapunov_hidden_units": 32,
+    "omega": 1.0,
+    "velocity_max": 4.0,
+    "velocity_min": -4.0
+  },
+  "implementation_config": {
+    "epsilon": 0.1,
+    "kappa": 0.05,
+    "learning_rate": 0.001,
+    "log_every": 500,
+    "plot_points_per_axis": 301,
+    "seed": 20260820,
+    "training_steps": 5000,
+    "validation_points_per_axis": 201
+  },
+  "local_design": {
+    "K": [
+      -2.0,
+      -3.0
+    ],
+    "P": [
+      [
+        1.25,
+        0.25
+      ],
+      [
+        0.25,
+        0.25
+      ]
+    ],
+    "origin": "current reproducible design, not values reported in the article"
+  },
+  "training": {
+    "completed_training_steps": 5000,
+    "final_maximum_pointwise_loss": 0.15612395738295443,
+    "final_mean_pointwise_loss": 0.0005348022535729056,
+    "loss_reduction": "arithmetic mean of the displayed pointwise loss",
+    "training_grid_convention": "cell midpoints",
+    "training_grid_points_after_filter": 9974,
+    "training_grid_points_before_filter": 10000
+  },
+  "validation": {
+    "W_below_epsilon_fraction_on_X_minus_B_kappa_over_2": 0.007993247939628637,
+    "interpretation": "finite-grid numerical evidence, not a continuous-domain certificate",
+    "local_control_points_outside_B_kappa": 29,
+    "maximum_DV_local_F_local_on_B_kappa": -0.0004930743848926873,
+    "maximum_DW_F_learned_on_X_minus_B_kappa_over_2": 0.055950975617497595,
+    "maximum_DW_F_plus_W_on_X_minus_B_kappa_over_2": 0.15053885180119458,
+    "maximum_DW_F_under_article_switch_on_X": 3.6885728651168144,
+    "minimum_W_away_from_origin_on_X": 0.001898220495207777,
+    "minimum_W_on_X_minus_B_kappa_over_2": 0.007428679777545624,
+    "nonnegative_learned_derivative_fraction_on_X_minus_B_kappa_over_2": 0.001141892562804091,
+    "nonnegative_local_derivative_fraction_on_B_kappa": 0.0,
+    "nonnegative_switched_derivative_fraction_on_X": 0.0016089108910891088,
+    "points_using_local_control": 50,
+    "validation_grid_convention": "independent grid including boundary",
+    "validation_grid_points": 40401,
+    "validation_points_in_X_minus_B_kappa_over_2": 40284
+  }
+}

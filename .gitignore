@@ -54,6 +54,9 @@ cover/
 
 # Numerical experiment outputs
 example_1/*/results/
+example_2/*/results/
+example_2/*/figures/**/*.svg
+example_2/*/figures/**/*.npz
 
 # PyBuilder
 .pybuilder/
