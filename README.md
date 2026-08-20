@@ -1,170 +1,99 @@
-# lyapnn — единый пайплайн для обучения и диагностики функций Ляпунова
+# Neural Lyapunov functions with homogeneous approximation
 
-`lyapnn` — это CLI-инструмент, который запускает полный workflow для системы Даффинга с трением:
+This repository contains reproducible implementations of the first numerical
+example from *A neural network-based stability analysis and stabilization
+through homogeneous approximations*.
 
-1. обучение `V_inf` на однородной аппроксимации динамики `f_inf`;
-2. диагностика `V_inf` и `dV_inf` на области `Omega`;
-3. перенос `V_inf` в полную систему `f_full` (`V_full`, `dV_full`);
-4. обучение локальной функции `W` вокруг равновесия;
-5. диагностика `W` и `dW`;
-6. сборка финальной функции `V_final` через blending `V_full` и `W`;
-7. сохранение графиков и численных данных (`.npz`) для всех этапов.
+The code is organized around two versions of the same idea: learn a Lyapunov
+candidate for the homogeneous approximation at infinity, learn a second
+candidate on the bounded transition region, and unite the two functions.
 
----
+| Version | Construction | Purpose |
+| --- | --- | --- |
+| [`example_1/original`](example_1/original) | Minimum-based gluing from equation (16) | Reference implementation of the published construction |
+| [`example_1/improved`](example_1/improved) | Positive-definite inner model with smooth level-set gluing | Numerically improved variant used for the main reproducibility experiment |
 
-## Требования
+Both folders are self-contained. The previous multi-stage package was removed
+so that the equations, training loop, validation, and saved results can be read
+without following a framework layer.
 
-- Python `>= 3.9`;
-- зависимости: `numpy`, `torch`, `matplotlib`.
-
-Они автоматически ставятся из `pyproject.toml` при установке пакета.
-
----
-
-## Установка
+## Quick start
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -e .
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python -m pip install -r example_1/improved/requirements.txt
 ```
 
-После установки будет доступна команда `lyapnn`.
-
----
-
-## Быстрый запуск
-
-### 1) Запуск с дефолтными параметрами
+Run the improved experiment:
 
 ```bash
-lyapnn --outdir runs/default --no_show
+python example_1/improved/example1.py \
+  --outdir example_1/improved/results/reference
 ```
 
-`--no_show` отключает интерактивные окна matplotlib (удобно для SSH/CI).
-
-### 2) Запуск с пользовательскими областями
+Run the implementation tests:
 
 ```bash
-lyapnn --outdir runs/custom --no_show \
-  --omega_x1_min -20 --omega_x1_max 20 --omega_x2_min -20 --omega_x2_max 20 \
-  --w_box_x1_min -5 --w_box_x1_max 5 --w_box_x2_min -5 --w_box_x2_max 5 \
-  --x_box_x1_min -1 --x_box_x1_max 1 --x_box_x2_min -1 --x_box_x2_max 1
+python -m unittest example_1.original.test_example1
+python -m unittest example_1.improved.test_example1
 ```
 
----
-
-## Ключевые понятия по координатам
-
-- `Omega` задается в **исходных координатах** системы: `(x1, x2)`.
-- `W_box` и `X_box` задаются в **сдвинутых координатах**: `(x1_tilde, x2)`, где `x1_tilde = x1 - x_eq`.
-
-Это важно для корректной интерпретации тепловых карт и масок blending-а.
-
----
-
-## Как строится `V_final`
-
-На всей `Omega` считается `V_full` и `W`, затем применяется правило:
-
-- вне `W_box` используется `V_full`;
-- внутри `X_box` используется `W`;
-- в области `W_box \ X_box` берется `max(V_full, W)`;
-- производная выбирается согласованно с выбранной функцией (`dV_full` или `dW`).
-
----
-
-## Основные CLI-параметры
-
-Полный список:
+Short smoke runs are available for installation checks:
 
 ```bash
-lyapnn --help
+python example_1/original/example1.py --quick \
+  --outdir example_1/original/results/quick
+python example_1/improved/example1.py --quick \
+  --outdir example_1/improved/results/quick
 ```
 
-Ниже — самые важные группы параметров.
+## Main numerical observation
 
-### Общие
-
-- `--outdir` — директория с результатами (`runs/output` по умолчанию);
-- `--device` — устройство для torch (`cpu`, `cuda`, ...);
-- `--dtype` — `float32` или `float64`;
-- `--seed` — random seed;
-- `--no_show` — не показывать интерактивные графики;
-- `--no_save` — не сохранять PNG-файлы (npz при этом сохраняются).
-
-### Сетки и области
-
-- `--grid` — размер сетки по каждой оси (например, `101` => `101x101`);
-- `--omega_*` — границы основной области `Omega`;
-- `--w_box_*` — границы области, где разрешено использовать `W`;
-- `--x_box_*` — внутреннее ядро, где всегда берется `W`.
-
-### Обучение `V_inf`
-
-- `--vinf_mu`, `--vinf_alpha` — параметры модели `V_inf`;
-- `--vinf_hidden`, `--vinf_depth` — архитектура;
-- `--vinf_steps`, `--vinf_batch`, `--vinf_lr` — обучение;
-- `--vinf_log_every` — частота логирования;
-- `--vinf_normalize_margin` — нормализация margin (1/0).
-
-### Обучение `W`
-
-- `--w_hidden`, `--w_depth` — архитектура;
-- `--w_steps`, `--w_batch`, `--w_lr` — обучение;
-- `--w_log_every` — частота логирования;
-- `--w_r_min`, `--w_margin`, `--w_alpha_pos`, `--w_eps_s`, `--w_lam_s` — коэффициенты и ограничения loss/регуляризации.
-
----
-
-## Что сохраняется в `outdir`
-
-Структура результатов:
+For the recorded improved run, the independent validation set contained
+54,140 points outside the compact set `X`. The smallest sampled candidate value
+was positive and the largest sampled directional derivative was negative:
 
 ```text
-<outdir>/
-  vinf/
-    vinf.pt
-    vinf_heatmaps.png
-    vinf_3d.png
-    dvinf_3d.png
-    vinf_heatmaps.npz
-  vfull/
-    vfull_heatmaps.png
-    vfull_3d.png
-    dvfull_3d.png
-    vfull_heatmaps.npz
-  w/
-    w_model.pt
-    w_heatmaps.png
-    w_3d.png
-    dw_3d.png
-    w_heatmaps.npz
-  final/
-    v_final_heatmaps.png
-    v_final_3d.png
-    dv_final_3d.png
-    v_final_heatmaps.npz
-  all_plot_data.npz
+min V_smooth                     = +0.012761223688969375
+max D V_smooth f                 = -0.04414346562709255
+nonpositive-value fraction       = 0
+nonnegative-derivative fraction  = 0
 ```
 
-`all_plot_data.npz` содержит агрегированные массивы по всем этапам, включая итоговые маски blending-а (`final_w_mask`, `final_x_mask`).
+The corresponding configuration, validation design, and limitations are
+documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
 
----
+## Reproducibility scope
 
-## Запуск как Python-модуль
+The paper does not report every numerical setting used to produce its figures.
+The dry-friction law, optimizer settings, random seed, grid coordinates, and
+the empirical selection of `kappa` are therefore stated explicitly in each
+implementation instead of being treated as recovered values.
 
-Если не хотите пользоваться entrypoint-скриптом, можно так:
+The minimum-based version is kept as the reference baseline. Its validation
+record includes small decay and dominance violations on an independent finite
+grid. The improved version replaces the minimum with a smooth level-set
+transition and passes the stated finite-grid checks for the recorded seed.
 
-```bash
-python -m lyapnn.cli --outdir runs/module --no_show
+These computations are numerical evidence on finite domains. They are not a
+continuous-domain or unbounded-domain certificate.
+
+## Repository layout
+
+```text
+example_1/
+  README.md
+  original/
+    example1.py
+    test_example1.py
+    README.md
+    AUDIT.md
+    requirements.txt
+  improved/
+    example1.py
+    test_example1.py
+    README.md
+    AUDIT.md
+    requirements.txt
 ```
-
----
-
-## Практические советы
-
-- Для первых прогонов уменьшайте число шагов (`--vinf_steps`, `--w_steps`) и сетку (`--grid`) для быстрой обратной связи.
-- Если работаете без GUI (сервер, Docker, CI), почти всегда нужен `--no_show`.
-- Для воспроизводимости фиксируйте `--seed` и сохраняйте команду запуска рядом с артефактами.

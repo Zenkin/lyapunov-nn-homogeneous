@@ -52,6 +52,9 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Numerical experiment outputs
+example_1/*/results/
+
 # PyBuilder
 .pybuilder/
 target/
