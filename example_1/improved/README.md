@@ -1,14 +1,18 @@
 # Improved smooth-gluing construction
 
-This folder keeps the homogeneous outer candidate from the paper and changes
-two parts of the bounded-region construction:
+This folder contains a subsequent modification developed by the authors after
+revisiting the first numerical example. It preserves the homogeneous outer
+candidate and the central sphere-learning principle of the article, while
+changing two parts of the bounded-region construction:
 
 1. the inner function is positive definite by parameterization;
 2. the pointwise minimum is replaced by a smooth transition between the level
    sets `V_inf=kappa` and `V_inf=2 kappa`.
 
 The complete candidate is differentiated during training, including the
-chain-rule term introduced by the transition weight.
+chain-rule term introduced by the transition weight. This version is an
+author-developed extension; it is not the minimum-gluing algorithm printed in
+the article.
 
 ## Recorded result
 
@@ -73,7 +77,7 @@ V_inf(z) = rho(z)^2 W_theta(y).
 ```
 
 This is the `varpi=2` gauge from Definition 4. The application paragraph of
-the paper writes another equivalent `r`-homogeneous gauge,
+the article writes another equivalent `r`-homogeneous gauge,
 `|z1|+sqrt(|z2|)`. The gauge used by the experiment is stored as an explicit
 numerical choice.
 
@@ -138,6 +142,6 @@ No dominance penalty or separate scale `chi` is needed.
 ## Scope
 
 The smooth gate, fixed quadratic coefficient, seed, optimizer settings, grid
-coordinates, and empirical `kappa` are implementation choices. The validation
-is finite-grid numerical evidence for one seed, not a continuous-domain or
-unbounded-domain proof.
+coordinates, and empirical `kappa` are choices made for this public
+implementation. The validation is finite-grid numerical evidence for one
+seed, not a continuous-domain or unbounded-domain proof.

@@ -1,13 +1,14 @@
 # Original minimum-gluing construction
 
-This folder is a self-contained reference implementation of the construction
-used in equations (9), (11), (12), and (16) of the paper. It combines an
-`r=(1,2)` homogeneous candidate at infinity with a one-hidden-layer square
+This folder contains the authors' public implementation of the construction
+presented in equations (9), (11), (12), and (16) of the article. It combines
+an `r=(1,2)` homogeneous candidate at infinity with a one-hidden-layer square
 candidate on `B_(2 kappa) \ X` through a pointwise minimum.
 
-The folder represents the published method, not recovered historical source
-code. Numerical choices that are absent from the paper are listed below and
-written to `config.json` on every run.
+The code is a cleaned, self-contained public implementation rather than an
+archival snapshot of the working code used while preparing the article.
+Numerical choices not fixed in the article are stated below and written to
+`config.json` on every run.
 
 ## Run
 
@@ -43,14 +44,14 @@ x2_dot = -phi(x2) + a1 (x1-c1)
          - a2 sqrt(abs(x2)) x2 - a3 (x1-c2)^3
 ```
 
-The paper specifies
+The article specifies
 
 ```text
 a1=1, a2=2, a3=1, c1=1, c2=2.
 ```
 
-The bounded dry-friction law used here is taken from the repository's earlier
-`dev_w` implementation:
+The bounded dry-friction law used in this public implementation comes from the
+authors' earlier `dev_w` development branch:
 
 ```text
 phi(v) = 0.8 tanh(v/0.5).
@@ -82,11 +83,10 @@ y = (z1/rho, z2/rho^2),
 V_inf(z) = rho(z)^2 W_theta(y).
 ```
 
-The application paragraph of the paper writes the equivalent homogeneous
+The application paragraph of the article writes the equivalent homogeneous
 gauge `|z1|+sqrt(|z2|)`. Both scale linearly under
 `diag(lambda,lambda^2)`, but they define different unit spheres. The selected
-gauge is therefore an explicit numerical choice rather than a claim about the
-unavailable source code.
+gauge is therefore fixed explicitly in the current public implementation.
 
 The loss is applied to the directional derivative of the complete homogeneous
 extension `V_inf`. This includes the chain rule through `rho` and `y`; the raw
@@ -111,7 +111,8 @@ V(z) = min(V_inf(z), U_theta(z))  on B_(2 kappa) \ X.
 
 Training includes decay, positivity, inner-dominance, and outer-boundary
 dominance terms. The grid is uniform in homogeneous level and sphere angle;
-the paper reports `100 x 100` points but does not specify the grid coordinates.
+the article reports `100 x 100` points but does not specify the grid
+coordinates.
 
 ## Validation note
 
@@ -121,5 +122,6 @@ a small set of decay violations and does not satisfy the inner-dominance
 condition everywhere. The exact values and the tested alternatives are kept in
 [`AUDIT.md`](AUDIT.md).
 
-The baseline remains useful because it isolates the effect of the published
-minimum-gluing rule and provides a direct comparison for the improved version.
+The original implementation remains useful because it isolates the effect of
+the minimum-gluing rule presented in the article and provides a direct
+comparison for the improved version.

@@ -1,8 +1,10 @@
 # Neural Lyapunov functions with homogeneous approximation
 
-This repository contains reproducible implementations of the first numerical
-example from *A neural network-based stability analysis and stabilization
-through homogeneous approximations*.
+This is the official source-code repository accompanying the article
+*A neural network-based stability analysis and stabilization through
+homogeneous approximations*. The repository is maintained by the authors of
+the article and contains the public implementations of its first numerical
+example.
 
 The code is organized around two versions of the same idea: learn a Lyapunov
 candidate for the homogeneous approximation at infinity, learn a second
@@ -10,12 +12,12 @@ candidate on the bounded transition region, and unite the two functions.
 
 | Version | Construction | Purpose |
 | --- | --- | --- |
-| [`example_1/original`](example_1/original) | Minimum-based gluing from equation (16) | Reference implementation of the published construction |
-| [`example_1/improved`](example_1/improved) | Positive-definite inner model with smooth level-set gluing | Numerically improved variant used for the main reproducibility experiment |
+| [`example_1/original`](example_1/original) | Minimum-based gluing from equation (16) | Public implementation of the construction presented in the article |
+| [`example_1/improved`](example_1/improved) | Positive-definite inner model with smooth level-set gluing | Subsequent modification developed by the authors after revisiting the numerical example |
 
-Both folders are self-contained. The previous multi-stage package was removed
-so that the equations, training loop, validation, and saved results can be read
-without following a framework layer.
+Both folders are self-contained so that the equations, training loop,
+validation procedure, and saved results can be inspected without following a
+framework layer.
 
 ## Quick start
 
@@ -48,7 +50,7 @@ python example_1/improved/example1.py --quick \
   --outdir example_1/improved/results/quick
 ```
 
-## Main numerical observation
+## Current numerical result
 
 For the recorded improved run, the independent validation set contained
 54,140 points outside the compact set `X`. The smallest sampled candidate value
@@ -64,17 +66,19 @@ nonnegative-derivative fraction  = 0
 The corresponding configuration, validation design, and limitations are
 documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
 
-## Reproducibility scope
+## Implementation and validation notes
 
-The paper does not report every numerical setting used to produce its figures.
-The dry-friction law, optimizer settings, random seed, grid coordinates, and
-the empirical selection of `kappa` are therefore stated explicitly in each
-implementation instead of being treated as recovered values.
+The article does not fix every low-level numerical setting needed for a public
+software implementation. For this release, the dry-friction law, optimizer
+settings, random seed, grid coordinates, and empirical selection of `kappa`
+are therefore stated explicitly in the code and saved configuration files.
 
-The minimum-based version is kept as the reference baseline. Its validation
-record includes small decay and dominance violations on an independent finite
-grid. The improved version replaces the minimum with a smooth level-set
-transition and passes the stated finite-grid checks for the recorded seed.
+The `original` version follows the minimum-based construction presented in the
+article. Its current validation record includes small decay and dominance
+violations on an independent finite grid. We retain and report this result as
+part of the numerical audit. The `improved` version replaces the minimum with
+a smooth level-set transition and passes the stated finite-grid checks for the
+recorded seed.
 
 These computations are numerical evidence on finite domains. They are not a
 continuous-domain or unbounded-domain certificate.
