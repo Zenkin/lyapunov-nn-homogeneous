@@ -1,229 +1,233 @@
-# Audit of the domain-aligned improvement
+# Audit of the smooth neural extension
 
-## What is retained
+## Scope
 
-The experiment retains the article's essential stabilization principle:
+The implementation keeps the article's local-plus-neural stabilization
+principle, but the smooth composite architecture, periodic base, corrected
+Jacobian, and numerical hyperparameters are later implementation choices.
+They are not attributed to the printed article.
 
-1. a quadratic Lyapunov function and linear feedback are used near the
-   origin;
-2. a neural candidate `W=T^T T` and neural feedback are used on the outer
-   bounded domain;
-3. the two feedback laws are joined by state-dependent switching.
+The conclusions have two different strengths:
 
-The corrected Jacobian, `K=(-2,-3)`, and
+1. the local decay estimate and positivity of the composite architecture are
+   analytic;
+2. the outer derivative inequalities, value of `c`, equilibria, and
+   trajectories are finite numerical checks.
+
+## Local analytic part
+
+For the corrected Jacobian,
 
 ```text
+K = (-2,-3),
 P = [[11/6, 1/2],
-     [ 1/2, 1/3]]
+     [ 1/2, 1/3]],
 ```
 
-give `(A+BK)^T P+P(A+BK)=-I` exactly.
-
-The local set also has a continuous, rather than merely gridded, decay
-estimate. Writing `R=||x||`, the nonlinear remainder relative to the corrected
-closed-loop linearization is
-
-```text
-r(x) = sin(theta)-theta + (1-cos(theta))(2 theta+3 theta_dot).
-```
-
-Using
-
-```text
-|sin(theta)-theta| <= |theta|^3/6,
-|1-cos(theta)|     <= theta^2/2,
-|(P x)_2|          <= (sqrt(13)/6) R,
-```
-
-gives
-
-```text
-DV_l F(x,Kx) <= -R^2 + c R^4,
-c = sqrt(13)/18 + 13/6.
-```
-
-Moreover,
-
-```text
-lambda_min(P) = (13-3 sqrt(13))/12,
-R^2 <= kappa/lambda_min(P) on B_kappa.
-```
-
-For `kappa=0.05`, therefore,
+and `(A+BK)^T P+P(A+BK)=-I` exactly. Direct remainder bounds give
 
 ```text
 DV_l F(x,Kx) <= -0.3495373937 ||x||^2 < 0
 ```
 
-for every nonzero `x` in `B_kappa`. This part is a continuous analytic bound;
-the neural outer-domain conclusions below remain numerical.
+for every nonzero point in `V_l<=kappa`, with `kappa=0.05`.
 
-## Explicit changes
+## Why the composite is positive
 
-The changes are implementation choices introduced after auditing the literal
-version. They are not attributed to the article.
-
-1. The switch uses `V_l<=kappa`, not `W<kappa`. Thus the local controller is
-   never activated outside its checked local set.
-2. `W` and `N` use periodic features
-   `(sin(theta),1-cos(theta),theta_dot/4)`. This removes the artificial seam
-   mismatch between `theta=-pi` and `theta=pi`.
-3. Training includes the mean outer loss and the mean of its worst 5% of
-   pointwise values. This reduces the ability of an arithmetic mean to hide
-   sparse violations.
-4. On the exact ellipse `V_l=kappa`, separate losses penalize the control jump
-   and violation of
-   `DV_l F(x,N(x))+0.1 kappa<=0`.
-5. Validation uses a `211x211` midpoint grid whose points do not coincide with
-   the `100x100` training midpoint grid. Boundary validation uses 2,048 points
-   shifted away from the 512 boundary-training points.
-
-## Structural obstruction to a global continuous result
-
-For any continuous periodic feedback, define its acceleration on the
-zero-velocity line by
+The neural term alone is `W=T^T T>=0`, but this does not exclude zeros of `T`
+away from the target. The implemented candidate is instead
 
 ```text
-h(theta) = sin(theta) + cos(theta) U(theta,0).
+V_NN = (1-s) V_l + s (V_p+W),
+V_p  = (sin(theta),theta_dot)^T P (sin(theta),theta_dot)
+       + (1-cos(theta))^2.
 ```
 
-At the loss-of-authority angles, independently of the value of `U`,
+In the transition, `0<s<1` and `V_l>0` away from the target. In the outer
+region, `V_p>0` on the pendulum cylinder away from the target and `W>=0`.
+Hence the composite is positive definite independently of whether the neural
+map has an exact zero.
+
+The cubic transition has zero endpoint derivatives. On 2,048 samples of
+`V_l=kappa`, the numerical identities are
 
 ```text
-h(-pi/2) = -1,     h(pi/2) = 1.
+max |V_NN-kappa|       = 1.53e-16,
+max |u-Kx|             = 4.44e-16,
+max transition weight = 2.31e-29.
 ```
 
-The selected local controller gives
+The periodic seam mismatches of both `V_NN` and the actual control are zero to
+the recorded floating-point precision.
+
+## Loss and exact zero
+
+The hidden activations are `tanh`. The positive-part operation in the loss is
+implemented by `torch.clamp_min`, not by a ReLU network layer.
+
+The outer margin is
 
 ```text
-h_l(theta) = sin(theta)-2 theta cos(theta),
+-[W-epsilon]_- = [epsilon-W]_+,  epsilon=0.05.
 ```
 
-which is positive immediately to the left of zero and negative immediately
-to the right. If the outer feedback is continuous and agrees with the local
-feedback at the switching boundary, the intermediate value theorem forces at
-least one additional zero between the positive switching boundary and
-`pi/2`, and at least one between `-pi/2` and the negative switching boundary.
-These zeros are additional closed-loop equilibria.
+At an exact scalar example `W=a^2`, the penalty has value `epsilon` at `a=0`
+but derivative zero. At a small nonzero `a`, its derivative is `-2a` and
+gradient descent pushes `|a|` upward. A unit test records this distinction.
+The composite architecture avoids relying on this gradient to establish
+positive definiteness.
 
-Consequently, a continuous periodic controller agreeing with this local
-controller cannot make the origin the only equilibrium on the full pendulum
-cylinder. A continuously differentiable function also cannot have a strictly
-negative derivative at any additional equilibrium, because the vector field
-is zero there. Therefore the improved experiment is evaluated as a local or
-empirical almost-global construction, not as a global strict Lyapunov
-certificate on the whole rectangle.
+On the `801x801` audit grid, raw `W` is below `epsilon` at approximately
+0.174% of the samples outside `V_l<=kappa`; the maximum margin violation is
+about 0.04990. This residual does not make `V_NN` nonpositive because of the fixed
+positive base, but it is retained as a failed margin check.
 
-## Scope of numerical conclusions
+## Independent validation
 
-The saved record reports three distinct checks:
+The primary validation grid contains `401x401=160,801` cell midpoints and is
+disjoint from the `100x100` training midpoint grid. A second `801x801`
+midpoint grid is used as a resolution audit.
 
-- local and outer inequalities on a finite independent grid;
-- direction and controller mismatch on the switching ellipse;
-- fixed-step RK4 trajectories from a declared periodic initial-condition
-  grid.
-
-Trajectory integration is repeated with smaller steps and longer final times
-in the self-audit. Agreement of those runs checks numerical robustness but
-does not prove a region of attraction between sampled initial conditions.
-
-## Recorded result
-
-The corrected domain alignment works as intended on the sampled checks:
+The objective values evaluated after the final optimizer update are
 
 ```text
-max DV_l F(x,Kx) in B_kappa, excluding the origin = -0.0008860817918446897
-max DV_l F(x,N(x)) on V_l=kappa                  = -0.022883994983153563
-max boundary inward residual                     = -0.017883994983153562
-max sampled control jump on V_l=kappa             =  0.015526928475840918
-periodic seam mismatch for W                      =  1.33e-15
-periodic seam mismatch for N                      =  8.88e-16
+training 100x100 combined objective     = 0.16608341281928593
+validation 401x401 combined objective   = 0.16936016274451050
+audit 801x801 combined objective        = 0.16945453931764880
 ```
 
-Thus the local controller is never selected outside `B_kappa`, the sampled
-local derivative is negative away from the origin, and the learned vector
-field points into `B_kappa` on all 2,048 shifted boundary points. Controller
-matching is approximate, not exact.
-
-The outer strict Lyapunov inequalities do not pass on the full validation
-rectangle:
+The two validation values use exactly the training objective weights; neither
+grid participates in gradient updates.
 
 ```text
-min W outside B_kappa                              = 0.0017880185058213414
-fraction W<epsilon, epsilon=0.05                  = 0.011222001445086706
-max DW F outside B_kappa                          = 0.008026269737122498
-fraction DW F>=0 outside B_kappa                  = 0.01905708092485549
-max (DW F+0.1 W) outside B_kappa                  = 0.053640605507874355
-fraction DW F+0.1 W>0 outside B_kappa             = 0.06240968208092486
+local points, excluding target       = 836
+max dV_NN in local region            = -0.0002454607918731659
+
+transition points                    = 840
+max dV_NN in transition              = -0.09210354617765754
+
+full nonzero validation points       = 160,800
+max dV_NN on full rectangle          = +0.6337056599161834
+fraction dV_NN >= 0                  = 0.00333955223880597
+fraction dV_NN+0.1 V_NN > 0         = 0.009894278606965174
 ```
 
-The sampled `W` remains positive outside the local set, but it does not reach
-the deliberately stronger margin `epsilon=0.05` everywhere. More
-importantly, its derivative is not strictly negative everywhere. This is
-consistent with the structural obstruction above and is reported as a failed
-global-certificate check.
+Thus the full rectangle does not have a strict neural Lyapunov certificate.
+The red and orange regions remain visible in the committed condition map.
+
+## Sampled Lyapunov domain
+
+For each candidate level, the audit forms the periodic-angle, four-neighbour
+component of `{V_NN<=c}` that contains the target. It requires
+
+```text
+V_NN>0 and dV_NN<0
+```
+
+at every non-target sample in that component and rejects components touching
+the upper or lower velocity boundary. The first low-value samples with
+`dV_NN>=0` seed local constrained minimizations of `V_NN` subject to
+`dV_NN=0`. The two resolutions give the same refined contact to the shown
+precision:
+
+```text
+critical level estimate                     = 3.4664871442366
+critical point estimate                     = (1.4681556877,-0.2980136606)
+reported level, rounded downward             = 3.466
+401x401 points in connected component        = 18,893
+801x801 points in connected component        = 75,361
+nonnegative-dV points in either component    = 0
+disconnected points in either sublevel       = 0
+touches velocity boundary                  = false
+```
+
+This is a grid-seeded local numerical refinement. It does not isolate all
+roots or certify values between samples. A formal continuous-domain result
+would additionally require interval or Lipschitz bounds.
+
+## Trajectories
+
+Fixed-step RK4 with wrapped angle was applied to a periodic `25x21` grid of
+initial conditions.
+
+```text
+final time                                  = 40
+integration step                            = 0.01
+successful trajectories                     = 525/525
+initial conditions inside V_NN<=c           = 59
+successes among those 59                     = 59
+initial conditions in 0.95c<=V_NN<=c        = 6/6 successful
+initial conditions in c<V_NN<=1.05c         = 7/7 successful
+trajectories crossing theta=+-pi/2          = 313
+minimum recorded crossing speed             = 0.1111082705
+trajectories leaving |theta_dot|<=4          = 182
+maximum observed |theta_dot|                 = 8.1556534353
+```
+
+Only 343 trajectories stay inside the velocity interval used for training and
+rectangular validation. The other 182 successful trajectories use the learned
+controller outside that interval and are therefore labelled as extrapolation,
+not as validation-domain evidence.
+
+The time-horizon and step-size audit is
+
+| RK4 step | Final time | Reached target |
+| ---: | ---: | ---: |
+| 0.02 | 20 | 524/525 |
+| 0.01 | 20 | 524/525 |
+| 0.005 | 20 | 524/525 |
+| 0.01 | 40 | 525/525 |
+
+The unchanged `t=20` count under step refinement indicates that the remaining
+state is slow rather than a time-discretization artifact. Extending the horizon
+to `t=40` brings it into the target level.
+
+## Loss-of-authority lines
+
+The plant is
+
+```text
+theta_dot    = velocity,
+velocity_dot = sin(theta)+cos(theta) u.
+```
+
+At `theta=+-pi/2`, the control contribution is zero, while gravity is `+-1`.
+These points are not equilibria. The crossing figure shows one successful
+trajectory passing the line with nonzero velocity and separately plots the
+gravity and control contributions.
+
+## Additional equilibria and global claim
 
 The dense zero-velocity scan detects four equilibria:
 
 ```text
-theta = -1.3302206164   saddle
+theta = -1.4932806571   saddle
 theta =  0              asymptotically stable target
-theta =  1.0657639785   saddle
-theta =  1.8588048108   unstable focus by linearization
+theta =  1.4313954898   saddle
+theta =  1.7075779461   unstable focus by linearization
 ```
 
-The classifications above use the eigenvalues of the numerically evaluated
-closed-loop Jacobian saved in `run_record.json`. They are local linear
-classifications of the detected equilibria, not a global phase-portrait
-proof.
+The classifications use eigenvalues of numerically evaluated closed-loop
+Jacobians. They are local numerical classifications, not symbolic isolation of
+all roots.
 
-On the periodic `25x21` initial-condition grid, with `-pi` and `pi` counted
-only once, 500 of 525 trajectories enter `B_kappa` and reach
-`V_l<=1e-4` by `t=20`. The remaining 25 trajectories do not reach the local
-set:
+The extra equilibria prevent a global strict Lyapunov claim for this
+continuous periodic static feedback. They do not contradict the sampled
+regional level `c` or the empirical convergence of the declared finite
+trajectory grid. Accordingly, the result is reported as a regional
+finite-sample Lyapunov estimate together with a broader empirical trajectory
+result, not as a global proof.
 
-```text
-empirical success fraction = 500/525 = 0.9523809523809523.
-```
+## Software audit
 
-Ninety-one trajectories temporarily exceed the training interval
-`|theta_dot|<=4`; the maximum observed absolute velocity is approximately
-`5.6933`. All 91 later reach the target, so 409 successful trajectories stay
-inside the training rectangle for the complete simulation. Their convergence
-is the part supported by both the trajectory calculation and the rectangular
-validation domain; the other 91 successes involve neural extrapolation and
-are labelled accordingly in the numerical record.
-
-The unsuccessful initial conditions form a visible cluster in the saved
-phase portrait. This is an empirical sampled basin estimate, not an assertion
-that exactly 95.24% of the continuous state space belongs to the region of
-attraction.
-
-## Numerical self-audit
-
-The trajectory count is unchanged under step refinement and a longer
-integration interval:
-
-| RK4 step | Final time | Successful trajectories |
-| ---: | ---: | ---: |
-| 0.02 | 20 | 500/525 |
-| 0.01 | 20 | 500/525 |
-| 0.005 | 20 | 500/525 |
-| 0.01 | 40 | 500/525 |
-| 0.01 | 80 | 500/525 |
-
-At 41 deterministic validation points, the automatic directional derivative
-`DW F` was compared with the centered difference
-
-```text
-[W(x+hF(x))-W(x-hF(x))]/(2h),  h=1e-6.
-```
-
-The maximum absolute discrepancy was `9.00e-10`. This checks the derivative
-implementation but does not certify unsampled points.
-
-Finally, on the two zero-velocity intersections of `V_l=kappa`,
-`theta=+-0.1651445648`, the evaluated local closed-loop accelerations are
-`+0.1614004832` on the negative side and `-0.1614004832` on the positive
-side. Together with the control-independent values at `+-pi/2`, these signs
-numerically confirm the hypotheses used in the intermediate-value argument.
+- all 56 repository unit tests pass in the recorded environment;
+- two complete 6,000-step runs produced identical numerical tensor hashes:
+  `d675ad589fb684a6f661d3e85fe212aaf2e484f0a8171bd6e8e2171aa5ba709c`
+  for the Lyapunov network and
+  `afa25a66afdd6832bd770ab629d08f603b7d97b2133c1f76fce4ef65c4b82244`
+  for the controller;
+- the positive-part/epsilon zero-gradient distinction has a dedicated test;
+- the local matrix equation, analytic local bound, periodic seam, smoothstep
+  endpoint slopes, and target zeros have dedicated tests;
+- all saved metrics are evaluated after the final optimizer update;
+- training and validation midpoint grids are disjoint.

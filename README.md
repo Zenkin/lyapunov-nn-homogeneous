@@ -22,6 +22,11 @@ with the Jacobian of the displayed nonlinear model. Its reproducible numerical
 run uses explicitly labelled current choices for the unreported values of
 `K`, `P`, `kappa`, `epsilon`, and the training hyperparameters.
 
+The subsequent [`example_2/improved`](example_2/improved) version keeps the
+local-plus-neural principle and uses a smooth periodic composite candidate and
+feedback. It reports a sampled origin-connected Lyapunov sublevel separately
+from the broader empirical trajectory result.
+
 Both Example 1 folders are self-contained so that the equations, training
 loop, validation procedure, and saved results can be inspected without
 following a framework layer.
