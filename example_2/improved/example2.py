@@ -22,7 +22,9 @@ import argparse
 from dataclasses import asdict, dataclass, replace
 import json
 import math
+import platform
 from pathlib import Path
+import time
 
 import matplotlib
 import numpy as np
@@ -65,6 +67,7 @@ class ImprovedConfig:
     trajectory_final_time: float = 40.0
     trajectory_step: float = 0.01
     trajectory_target_level: float = 1e-4
+    history_every: int = 100
     log_every: int = 500
 
 
@@ -332,6 +335,16 @@ def training_terms(
             pointwise, config.worst_fraction
         ),
         "control_regularization": torch.mean(control**2),
+        "decay_violation_fraction": (decay_violation > 0.0).double().mean(),
+        "positivity_violation_fraction": (
+            positivity_violation > 0.0
+        ).double().mean(),
+        "maximum_decay_residual": torch.max(
+            derivative + config.decay_rate * value
+        ),
+        "maximum_positivity_residual": torch.max(
+            config.epsilon - learned_value
+        ),
     }
 
 
@@ -352,7 +365,7 @@ def train(
 ) -> tuple[
     PeriodicLyapunovNetwork,
     PeriodicControllerNetwork,
-    dict[str, float | int | str],
+    dict[str, object],
 ]:
     """Train the outer candidate and controller on the declared samples."""
 
@@ -368,6 +381,8 @@ def train(
         [*lyapunov.parameters(), *controller.parameters()],
         lr=config.learning_rate,
     )
+    history: list[dict[str, float | int]] = []
+    started = time.perf_counter()
 
     for step in range(1, config.training_steps + 1):
         terms = training_terms(lyapunov, controller, outer_points, config)
@@ -375,26 +390,67 @@ def train(
         optimizer.zero_grad(set_to_none=True)
         objective.backward()
         optimizer.step()
+        record_step = (
+            step == 1
+            or step % config.history_every == 0
+            or step == config.training_steps
+        )
+        if record_step:
+            recorded_terms = training_terms(
+                lyapunov, controller, outer_points, config
+            )
+            history.append(
+                {
+                    "epoch": step,
+                    **{
+                        name: value.detach().item()
+                        for name, value in recorded_terms.items()
+                    },
+                    "combined_objective": combined_objective(
+                        recorded_terms, config
+                    ).detach().item(),
+                }
+            )
         if step == 1 or step % config.log_every == 0 or step == config.training_steps:
+            displayed = history[-1] if record_step else {
+                "combined_objective": objective.detach().item(),
+                "outer_mean": terms["outer_mean"].detach().item(),
+                "outer_worst_fraction": terms[
+                    "outer_worst_fraction"
+                ].detach().item(),
+            }
             print(
-                f"[train {step:5d}] objective={objective.detach().item():.6e} "
-                f"outer={terms['outer_mean'].detach().item():.6e} "
-                f"tail={terms['outer_worst_fraction'].detach().item():.6e}"
+                f"[train {step:5d}] "
+                f"objective={displayed['combined_objective']:.6e} "
+                f"outer={displayed['outer_mean']:.6e} "
+                f"tail={displayed['outer_worst_fraction']:.6e}"
             )
 
     final_terms = training_terms(lyapunov, controller, outer_points, config)
     return lyapunov, controller, {
         "completed_steps": config.training_steps,
+        "epochs": config.training_steps,
+        "epoch_definition": (
+            "one full-batch Adam update over all fixed training points"
+        ),
         "training_grid_convention": (
             f"{config.training_points_per_axis}x"
             f"{config.training_points_per_axis} cell midpoints"
         ),
         "training_points_outside_B_kappa": len(outer_points),
+        "lyapunov_trainable_parameters": sum(
+            parameter.numel() for parameter in lyapunov.parameters()
+        ),
+        "controller_trainable_parameters": sum(
+            parameter.numel() for parameter in controller.parameters()
+        ),
+        "wall_time_seconds": time.perf_counter() - started,
         "final_metric_timing": "after the last optimizer update",
         **{name: value.detach().item() for name, value in final_terms.items()},
         "combined_objective": combined_objective(
             final_terms, config
         ).detach().item(),
+        "history": history,
     }
 
 
@@ -1125,6 +1181,90 @@ def equilibrium_audit(
     }
 
 
+def software_environment() -> dict[str, str | int]:
+    """Return the environment of the run without claiming portability."""
+
+    import scipy
+
+    return {
+        "python": platform.python_version(),
+        "pytorch": torch.__version__,
+        "numpy": np.__version__,
+        "matplotlib": matplotlib.__version__,
+        "scipy": scipy.__version__,
+        "platform": platform.platform(),
+        "processor": platform.processor() or "not reported by operating system",
+        "torch_threads": torch.get_num_threads(),
+        "torch_interop_threads": torch.get_num_interop_threads(),
+    }
+
+
+def save_training_history(
+    training: dict[str, object], outdir: Path
+) -> None:
+    """Plot the stored full-batch training diagnostics."""
+
+    import matplotlib.pyplot as plt
+
+    history = training.get("history")
+    if not isinstance(history, list) or not history:
+        raise ValueError("Training history is missing")
+    epoch = np.asarray([record["epoch"] for record in history], dtype=float)
+    objective = np.asarray(
+        [record["combined_objective"] for record in history], dtype=float
+    )
+    mean_loss = np.asarray(
+        [record["outer_mean"] for record in history], dtype=float
+    )
+    tail_loss = np.asarray(
+        [record["outer_worst_fraction"] for record in history], dtype=float
+    )
+    decay_fraction = np.asarray(
+        [record["decay_violation_fraction"] for record in history], dtype=float
+    )
+    positivity_fraction = np.asarray(
+        [record["positivity_violation_fraction"] for record in history],
+        dtype=float,
+    )
+
+    figure, axes = plt.subplots(
+        1, 2, figsize=(10.6, 4.0), constrained_layout=True
+    )
+    axes[0].plot(epoch, objective, color="#222222", lw=1.8, label="combined objective")
+    axes[0].plot(epoch, mean_loss, color="#2B7A9B", lw=1.5, label="mean pointwise loss")
+    axes[0].plot(epoch, tail_loss, color="#D89000", lw=1.5, label="worst 5% mean")
+    axes[0].set_yscale("log")
+    axes[0].set_xlabel("epoch (one full-batch Adam update)")
+    axes[0].set_ylabel("loss")
+    axes[0].set_title("Training objective")
+    axes[0].legend(frameon=False, fontsize=8)
+
+    axes[1].plot(
+        epoch,
+        100.0 * decay_fraction,
+        color="#C84B31",
+        lw=1.6,
+        label=r"$\dot V_{NN}+0.1V_{NN}>0$",
+    )
+    axes[1].plot(
+        epoch,
+        100.0 * positivity_fraction,
+        color="#6A4C93",
+        lw=1.6,
+        label=r"$W<\epsilon$",
+    )
+    axes[1].set_xlabel("epoch (one full-batch Adam update)")
+    axes[1].set_ylabel("violating training points (%)")
+    axes[1].set_title("Sampled constraint violations")
+    axes[1].legend(frameon=False, fontsize=8)
+    for axis in axes:
+        axis.grid(color="#D8DEE4", linewidth=0.5, alpha=0.65)
+    figure.suptitle("Example 2: recorded training history", fontsize=13)
+    figure.savefig(outdir / "training_history.png", dpi=300)
+    figure.savefig(outdir / "training_history.svg")
+    plt.close(figure)
+
+
 def save_figure(
     validation: dict[str, np.ndarray],
     trajectories: dict[str, np.ndarray],
@@ -1554,6 +1694,7 @@ def save_figure(
 def run(config: ImprovedConfig, outdir: Path) -> dict[str, object]:
     """Train, validate, simulate, and save all reproducibility artifacts."""
 
+    run_started = time.perf_counter()
     lyapunov, controller, training = train(config)
     validation_metrics, validation_arrays = validate(
         lyapunov, controller, config
@@ -1610,6 +1751,7 @@ def run(config: ImprovedConfig, outdir: Path) -> dict[str, object]:
     save_figure(
         validation_arrays, trajectory_arrays, equilibria, config, roa_level, outdir
     )
+    save_training_history(training, outdir)
     result: dict[str, object] = {
         "mathematical_changes": [
             "corrected Jacobian and consistent local P",
@@ -1629,6 +1771,17 @@ def run(config: ImprovedConfig, outdir: Path) -> dict[str, object]:
             config.kappa
         ),
         "training": training,
+        "execution": {
+            "software_environment": software_environment(),
+            "total_wall_time_seconds_before_record_write": (
+                time.perf_counter() - run_started
+            ),
+            "random_runs_reported": 1,
+            "randomness_note": (
+                "one deterministic run with the fixed seed; no mean or "
+                "standard deviation across seeds is claimed"
+            ),
+        },
         "validation": validation_metrics,
         "high_resolution_validation": high_resolution_validation,
         "trajectories": trajectory_metrics,
@@ -1663,6 +1816,7 @@ def main() -> None:
             trajectory_velocity_points=7,
             trajectory_final_time=0.2,
             trajectory_step=0.02,
+            history_every=5,
             log_every=10,
         )
     result = run(config, arguments.outdir)

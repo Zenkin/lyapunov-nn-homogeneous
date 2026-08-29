@@ -1,0 +1,4 @@
+experiment,network,activation,parameters,optimizer,learning_rate,epochs,training_points,seed
+"Example 1, homogeneous stage",2-32-1,tanh,129,"Adam, full batch",0.001,5000,2048,20260820
+"Example 1, inner and transition stage","2-32-2, anchored residual",tanh,160,"Adam, full batch",0.001,12000,9452,20260820
+"Example 2, W and N trained jointly",W: 3-64-2; N: 3-32-1,tanh,544,"Adam, full batch",0.002,6000,9952,20260820

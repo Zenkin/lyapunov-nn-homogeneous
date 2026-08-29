@@ -5,6 +5,7 @@
     "control_weight": 1e-05,
     "decay_rate": 0.1,
     "epsilon": 0.05,
+    "history_every": 100,
     "kappa": 0.05,
     "learning_rate": 0.002,
     "log_every": 500,
@@ -27,28 +28,28 @@
     "detected_equilibria": 4,
     "equilibria": [
       {
-        "field_residual": 1.5543122344752192e-15,
+        "field_residual": 2.220446049250313e-16,
         "jacobian": [
           [
             0.0,
             1.0
           ],
           [
-            13.57815273577684,
-            -0.10805915270062293
+            13.657531216163878,
+            -0.11008757902107959
           ]
         ],
         "jacobian_eigenvalues": [
           {
             "imag": 0.0,
-            "real": 3.631221016336356
+            "real": 3.6409758309632965
           },
           {
             "imag": 0.0,
-            "real": -3.739280169036979
+            "real": -3.7510634099843756
           }
         ],
-        "theta": -1.493280657088072
+        "theta": -1.4935794868544465
       },
       {
         "field_residual": 0.0,
@@ -75,64 +76,80 @@
         "theta": 2.6020852139652106e-17
       },
       {
-        "field_residual": 1.0325074129013956e-14,
+        "field_residual": 2.6645352591003757e-15,
         "jacobian": [
           [
             0.0,
             1.0
           ],
           [
-            13.641686441355386,
-            -0.3005046088251318
+            13.69235613733251,
+            -0.2885974992488242
           ]
         ],
         "jacobian_eigenvalues": [
           {
             "imag": 0.0,
-            "real": 3.5462679777361297
+            "real": 3.558832123903511
           },
           {
             "imag": 0.0,
-            "real": -3.8467725865612614
+            "real": -3.8474296231523355
           }
         ],
-        "theta": 1.4313954898237102
+        "theta": 1.430989770338067
       },
       {
-        "field_residual": 8.215650382226158e-15,
+        "field_residual": 1.1102230246251565e-16,
         "jacobian": [
           [
             0.0,
             1.0
           ],
           [
-            -13.079457597656834,
-            0.14574337831286527
+            -13.127934490069316,
+            0.1340571926591877
           ]
         ],
         "jacobian_eigenvalues": [
           {
-            "imag": 3.615819037863527,
-            "real": 0.0728716891564327
+            "imag": 3.6226291084436735,
+            "real": 0.06702859632959385
           },
           {
-            "imag": -3.615819037863527,
-            "real": 0.0728716891564327
+            "imag": -3.6226291084436735,
+            "real": 0.06702859632959385
           }
         ],
-        "theta": 1.7075779461107543
+        "theta": 1.7063383231520892
       }
     ],
     "interpretation": "dense zero-velocity scan with bisection; not symbolic root isolation",
     "scan_points": 20001
   },
+  "execution": {
+    "random_runs_reported": 1,
+    "randomness_note": "one deterministic run with the fixed seed; no mean or standard deviation across seeds is claimed",
+    "software_environment": {
+      "matplotlib": "3.10.8",
+      "numpy": "2.3.5",
+      "platform": "Linux-6.18.35-x86_64-with-glibc2.39",
+      "processor": "x86_64",
+      "python": "3.12.13",
+      "pytorch": "2.8.0+cpu",
+      "scipy": "1.16.1",
+      "torch_interop_threads": 1,
+      "torch_threads": 1
+    },
+    "total_wall_time_seconds_before_record_write": 341.42156250100015
+  },
   "high_resolution_validation": {
     "full_domain": {
-      "maximum_dV": 0.6372272297929693,
+      "maximum_dV": 0.6609069027449029,
       "minimum_V": 3.325015598998482e-05,
-      "nonnegative_dV_fraction": 0.003368142144638404,
+      "nonnegative_dV_fraction": 0.0032683915211970077,
       "points": 641600,
-      "positive_decay_residual_fraction": 0.009961034912718204
+      "positive_decay_residual_fraction": 0.010045199501246882
     },
     "interpretation": "independent finite-sample check, not a theorem",
     "local_domain": {
@@ -146,36 +163,36 @@
     "maximum_abs_control_difference_on_inner_boundary": 4.440892098500626e-16,
     "maximum_periodic_edge_VNN_mismatch": 0.0,
     "maximum_periodic_edge_control_mismatch": 0.0,
-    "maximum_raw_W_margin_violation_outside_B_kappa": 0.049901340950083264,
+    "maximum_raw_W_margin_violation_outside_B_kappa": 0.049884683233354404,
     "maximum_transition_weight_on_inner_boundary": 2.3111159332646788e-29,
-    "minimum_raw_W_outside_B_kappa": 9.865904991673536e-05,
+    "minimum_raw_W_outside_B_kappa": 0.00011531676664559754,
     "objective_on_validation_points_outside_B_kappa": {
-      "combined_objective": 0.1694545393176488,
-      "control_regularization": 215.3029933961197,
-      "outer_mean": 0.0040805370936914595,
-      "outer_worst_fraction": 0.08161048614499808
+      "combined_objective": 0.16774490111811785,
+      "control_regularization": 215.3540700686421,
+      "outer_mean": 0.004038826015780366,
+      "outer_worst_fraction": 0.08077626720082552
     },
     "outer_domain": {
-      "maximum_dV": 0.6372272297929693,
-      "minimum_V": 0.11834682648697425,
-      "nonnegative_dV_fraction": 0.0034035784035784038,
+      "maximum_dV": 0.6609069027449029,
+      "minimum_V": 0.11909528215536119,
+      "nonnegative_dV_fraction": 0.0033027783027783026,
       "points": 634920,
-      "positive_decay_residual_fraction": 0.010065835065835065
+      "positive_decay_residual_fraction": 0.010150885150885152
     },
-    "raw_W_below_epsilon_fraction_outside_B_kappa": 0.0017391086363194822,
+    "raw_W_below_epsilon_fraction_outside_B_kappa": 0.0017109068746494365,
     "roa_estimate": {
-      "c_conservative": 3.466,
-      "c_grid_pass": 3.4704042070990653,
-      "component_validation_points": 75361,
+      "c_conservative": 3.436,
+      "c_grid_pass": 3.4408255000437857,
+      "component_validation_points": 73234,
       "critical_refinement": {
-        "critical_level_estimate": 3.466487144236621,
+        "critical_level_estimate": 3.4369631633566526,
         "critical_point_estimate": [
-          1.4681556877161988,
-          -0.2980136605660287
+          1.4678147012121336,
+          -0.2972368228871114
         ],
-        "dV_at_critical_point": -9.586775817638227e-14,
+        "dV_at_critical_point": -7.921441280700492e-14,
         "interpretation": "local constrained minimization of V subject to dV=0, seeded by the independent grid; numerical estimate, not root isolation",
-        "reported_conservative_level": 3.466,
+        "reported_conservative_level": 3.436,
         "rounding_rule": "critical level rounded downward to 3 decimal places",
         "successful_local_refinements": 24
       },
@@ -184,12 +201,12 @@
       "maximum_dV_in_component_except_target": -6.152794855899801e-05,
       "minimum_V_in_component_except_target": 3.325015598998482e-05,
       "nonnegative_dV_points_in_component_except_target": 0,
-      "sublevel_validation_points": 75361,
+      "sublevel_validation_points": 73234,
       "touches_validation_velocity_boundary": false
     },
     "transition_annulus": {
-      "maximum_dV": -0.030015928599166502,
-      "minimum_V": 0.050011662829167886,
+      "maximum_dV": -0.029881243153147035,
+      "minimum_V": 0.05001166290174365,
       "nonnegative_dV_fraction": 0.0,
       "points": 3338,
       "positive_decay_residual_fraction": 0.0
@@ -231,50 +248,732 @@
     "grid-seeded refinement of the origin-connected decreasing sublevel"
   ],
   "training": {
-    "combined_objective": 0.16608341281928593,
+    "combined_objective": 0.16418723971605753,
     "completed_steps": 6000,
-    "control_regularization": 215.21327891546377,
+    "control_regularization": 215.2642449131169,
+    "controller_trainable_parameters": 160,
+    "decay_violation_fraction": 0.01004823151125402,
+    "epoch_definition": "one full-batch Adam update over all fixed training points",
+    "epochs": 6000,
     "final_metric_timing": "after the last optimizer update",
-    "outer_mean": 0.004001459536075159,
-    "outer_worst_fraction": 0.07996491024702806,
+    "history": [
+      {
+        "combined_objective": 40.61786108239356,
+        "control_regularization": 0.1376756983669786,
+        "decay_violation_fraction": 0.518790192926045,
+        "epoch": 1,
+        "maximum_decay_residual": 24.709626711459457,
+        "maximum_positivity_residual": 0.04997360582762683,
+        "outer_mean": 3.068694074538697,
+        "outer_worst_fraction": 18.77458281554894,
+        "positivity_violation_fraction": 0.40263263665594856
+      },
+      {
+        "combined_objective": 8.734535813423275,
+        "control_regularization": 1.5124753822535442,
+        "decay_violation_fraction": 0.5867162379421221,
+        "epoch": 100,
+        "maximum_decay_residual": 4.383666181175373,
+        "maximum_positivity_residual": 0.04954779076786673,
+        "outer_mean": 0.9444655707641995,
+        "outer_worst_fraction": 3.8950275589526266,
+        "positivity_violation_fraction": 0.018086816720257234
+      },
+      {
+        "combined_objective": 3.7427419983328005,
+        "control_regularization": 4.7849893117098246,
+        "decay_violation_fraction": 0.46141479099678456,
+        "epoch": 200,
+        "maximum_decay_residual": 2.241877606106832,
+        "maximum_positivity_residual": 0.049805692060803666,
+        "outer_mean": 0.3512233339765235,
+        "outer_worst_fraction": 1.69573540723158,
+        "positivity_violation_fraction": 0.01587620578778135
+      },
+      {
+        "combined_objective": 2.023803263611599,
+        "control_regularization": 7.083490966075646,
+        "decay_violation_fraction": 0.3865554662379421,
+        "epoch": 300,
+        "maximum_decay_residual": 1.488897155167804,
+        "maximum_positivity_residual": 0.04997887908167382,
+        "outer_mean": 0.15532098193567348,
+        "outer_worst_fraction": 0.9342057233831321,
+        "positivity_violation_fraction": 0.03114951768488746
+      },
+      {
+        "combined_objective": 1.7112534952460923,
+        "control_regularization": 8.750306807919072,
+        "decay_violation_fraction": 0.25894292604501606,
+        "epoch": 400,
+        "maximum_decay_residual": 1.3898132276774953,
+        "maximum_positivity_residual": 0.04929761159046175,
+        "outer_mean": 0.09569038279001095,
+        "outer_worst_fraction": 0.8077378046940011,
+        "positivity_violation_fraction": 0.033159163987138265
+      },
+      {
+        "combined_objective": 1.568100355168221,
+        "control_regularization": 11.086076204330265,
+        "decay_violation_fraction": 0.19041398713826366,
+        "epoch": 500,
+        "maximum_decay_residual": 1.402468239835149,
+        "maximum_positivity_residual": 0.04959311914698842,
+        "outer_mean": 0.06579073345679722,
+        "outer_worst_fraction": 0.7510993804746903,
+        "positivity_violation_fraction": 0.024316720257234727
+      },
+      {
+        "combined_objective": 1.4426880755314193,
+        "control_regularization": 14.323088206556942,
+        "decay_violation_fraction": 0.1402733118971061,
+        "epoch": 600,
+        "maximum_decay_residual": 1.43563486048663,
+        "maximum_positivity_residual": 0.04788269324260985,
+        "outer_mean": 0.04751302794062082,
+        "outer_worst_fraction": 0.6975159083543665,
+        "positivity_violation_fraction": 0.006330385852090032
+      },
+      {
+        "combined_objective": 1.3077000665004435,
+        "control_regularization": 18.49451787592343,
+        "decay_violation_fraction": 0.09887459807073955,
+        "epoch": 700,
+        "maximum_decay_residual": 1.4665698794060307,
+        "maximum_positivity_residual": 0.04984017586276005,
+        "outer_mean": 0.035619744550721644,
+        "outer_worst_fraction": 0.6359476883854813,
+        "positivity_violation_fraction": 0.004622186495176849
+      },
+      {
+        "combined_objective": 1.1775315821095889,
+        "control_regularization": 23.170503101975633,
+        "decay_violation_fraction": 0.07566318327974277,
+        "epoch": 800,
+        "maximum_decay_residual": 1.4866318166715933,
+        "maximum_positivity_residual": 0.046539456375184876,
+        "outer_mean": 0.02990826853365607,
+        "outer_worst_fraction": 0.5736958042724566,
+        "positivity_violation_fraction": 0.0043207395498392285
+      },
+      {
+        "combined_objective": 1.0424361268003066,
+        "control_regularization": 27.770371201691184,
+        "decay_violation_fraction": 0.044614147909967844,
+        "epoch": 900,
+        "maximum_decay_residual": 1.4781549581360325,
+        "maximum_positivity_residual": 0.04919235796814004,
+        "outer_mean": 0.02543843224673896,
+        "outer_worst_fraction": 0.5083599954207754,
+        "positivity_violation_fraction": 0.003617363344051447
+      },
+      {
+        "combined_objective": 0.9574935590772731,
+        "control_regularization": 32.15920982593697,
+        "decay_violation_fraction": 0.04019292604501608,
+        "epoch": 1000,
+        "maximum_decay_residual": 1.4754505021665973,
+        "maximum_positivity_residual": 0.04929326765309901,
+        "outer_mean": 0.023363966256031213,
+        "outer_worst_fraction": 0.46690400036149127,
+        "positivity_violation_fraction": 0.003114951768488746
+      },
+      {
+        "combined_objective": 0.8711070351173895,
+        "control_regularization": 36.304921082993395,
+        "decay_violation_fraction": 0.03577170418006431,
+        "epoch": 1100,
+        "maximum_decay_residual": 1.4365789325207179,
+        "maximum_positivity_residual": 0.0455472910761806,
+        "outer_mean": 0.021254313546782998,
+        "outer_worst_fraction": 0.4247448361798883,
+        "positivity_violation_fraction": 0.002512057877813505
+      },
+      {
+        "combined_objective": 0.7895453223520398,
+        "control_regularization": 40.72375766801005,
+        "decay_violation_fraction": 0.034063504823151125,
+        "epoch": 1200,
+        "maximum_decay_residual": 1.3888507617330723,
+        "maximum_positivity_residual": 0.04620016242221146,
+        "outer_mean": 0.019262364778851543,
+        "outer_worst_fraction": 0.38493785999825403,
+        "positivity_violation_fraction": 0.0021101286173633442
+      },
+      {
+        "combined_objective": 0.7220139522201997,
+        "control_regularization": 45.45662167208136,
+        "decay_violation_fraction": 0.034766881028938906,
+        "epoch": 1300,
+        "maximum_decay_residual": 1.3234347942364801,
+        "maximum_positivity_residual": 0.048776813081417264,
+        "outer_mean": 0.017612811206241176,
+        "outer_worst_fraction": 0.3519732873986189,
+        "positivity_violation_fraction": 0.0021101286173633442
+      },
+      {
+        "combined_objective": 0.6627125414858509,
+        "control_regularization": 49.77093774142976,
+        "decay_violation_fraction": 0.03044614147909968,
+        "epoch": 1400,
+        "maximum_decay_residual": 1.3051259785003522,
+        "maximum_positivity_residual": 0.04963857941311103,
+        "outer_mean": 0.01616424793598674,
+        "outer_worst_fraction": 0.32302529208622494,
+        "positivity_violation_fraction": 0.0021101286173633442
+      },
+      {
+        "combined_objective": 0.6265962725742114,
+        "control_regularization": 54.238663002264914,
+        "decay_violation_fraction": 0.03295819935691318,
+        "epoch": 1500,
+        "maximum_decay_residual": 1.2735442602167355,
+        "maximum_positivity_residual": 0.046783262740195085,
+        "outer_mean": 0.015281581962562789,
+        "outer_worst_fraction": 0.305386151990813,
+        "positivity_violation_fraction": 0.001607717041800643
+      },
+      {
+        "combined_objective": 0.594338215280016,
+        "control_regularization": 58.42406099066206,
+        "decay_violation_fraction": 0.0297427652733119,
+        "epoch": 1600,
+        "maximum_decay_residual": 1.2937405462078364,
+        "maximum_positivity_residual": 0.04390560795805527,
+        "outer_mean": 0.014493161424650252,
+        "outer_worst_fraction": 0.28963040662272954,
+        "positivity_violation_fraction": 0.0015072347266881028
+      },
+      {
+        "combined_objective": 0.5645769634618835,
+        "control_regularization": 63.43407580524739,
+        "decay_violation_fraction": 0.028838424437299035,
+        "epoch": 1700,
+        "maximum_decay_residual": 1.314922840256302,
+        "maximum_positivity_residual": 0.04860885833787898,
+        "outer_mean": 0.013765485055705707,
+        "outer_worst_fraction": 0.27508856882406263,
+        "positivity_violation_fraction": 0.0017081993569131833
+      },
+      {
+        "combined_objective": 0.5395093284881154,
+        "control_regularization": 68.5604712006231,
+        "decay_violation_fraction": 0.028135048231511254,
+        "epoch": 1800,
+        "maximum_decay_residual": 1.3412761499984267,
+        "maximum_positivity_residual": 0.04890042143843682,
+        "outer_mean": 0.013152348516836703,
+        "outer_worst_fraction": 0.26283568762963627,
+        "positivity_violation_fraction": 0.0017081993569131833
+      },
+      {
+        "combined_objective": 0.5182075947797589,
+        "control_regularization": 72.79966782490659,
+        "decay_violation_fraction": 0.02682877813504823,
+        "epoch": 1900,
+        "maximum_decay_residual": 1.364981127831252,
+        "maximum_positivity_residual": 0.048105806488990224,
+        "outer_mean": 0.012631351821123023,
+        "outer_worst_fraction": 0.25242412314019336,
+        "positivity_violation_fraction": 0.0014067524115755627
+      },
+      {
+        "combined_objective": 0.5014017570933698,
+        "control_regularization": 76.25611646157208,
+        "decay_violation_fraction": 0.027029742765273312,
+        "epoch": 2000,
+        "maximum_decay_residual": 1.3705322637252175,
+        "maximum_positivity_residual": 0.04732151545087652,
+        "outer_mean": 0.012220288186085657,
+        "outer_worst_fraction": 0.24420945387133422,
+        "positivity_violation_fraction": 0.0013062700964630225
+      },
+      {
+        "combined_objective": 0.482569967381594,
+        "control_regularization": 79.04108221764584,
+        "decay_violation_fraction": 0.025422025723472668,
+        "epoch": 2100,
+        "maximum_decay_residual": 1.3954684460643976,
+        "maximum_positivity_residual": 0.044404228528171524,
+        "outer_mean": 0.01175993623990736,
+        "outer_worst_fraction": 0.2350098101597551,
+        "positivity_violation_fraction": 0.0013062700964630225
+      },
+      {
+        "combined_objective": 0.46605418406778926,
+        "control_regularization": 81.4859433896659,
+        "decay_violation_fraction": 0.024316720257234727,
+        "epoch": 2200,
+        "maximum_decay_residual": 1.4009317840243047,
+        "maximum_positivity_residual": 0.04333327740070193,
+        "outer_mean": 0.011356199571986988,
+        "outer_worst_fraction": 0.22694156253095282,
+        "positivity_violation_fraction": 0.0013062700964630225
+      },
+      {
+        "combined_objective": 0.45120523690231795,
+        "control_regularization": 83.87882717240404,
+        "decay_violation_fraction": 0.02451768488745981,
+        "epoch": 2300,
+        "maximum_decay_residual": 1.408682022514134,
+        "maximum_positivity_residual": 0.041142732646485505,
+        "outer_mean": 0.010993162014412106,
+        "outer_worst_fraction": 0.2196866433080909,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.4362495833559931,
+        "control_regularization": 86.54440428291284,
+        "decay_violation_fraction": 0.023713826366559485,
+        "epoch": 2400,
+        "maximum_decay_residual": 1.4321296711341,
+        "maximum_positivity_residual": 0.04539351785028869,
+        "outer_mean": 0.010627453258403868,
+        "outer_worst_fraction": 0.21237834302738007,
+        "positivity_violation_fraction": 0.0011053054662379421
+      },
+      {
+        "combined_objective": 0.42240329664955717,
+        "control_regularization": 89.4551678230192,
+        "decay_violation_fraction": 0.022608520900321543,
+        "epoch": 2500,
+        "maximum_decay_residual": 1.4410659420461596,
+        "maximum_positivity_residual": 0.048251555291598525,
+        "outer_mean": 0.010288763601397943,
+        "outer_worst_fraction": 0.2056099906849645,
+        "positivity_violation_fraction": 0.0011053054662379421
+      },
+      {
+        "combined_objective": 0.40938462808640425,
+        "control_regularization": 92.42433781270773,
+        "decay_violation_fraction": 0.023512861736334406,
+        "epoch": 2600,
+        "maximum_decay_residual": 1.4416087564305415,
+        "maximum_positivity_residual": 0.049609414250166954,
+        "outer_mean": 0.009970261326572003,
+        "outer_worst_fraction": 0.19924506169085257,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.39657549293407496,
+        "control_regularization": 94.99251785113802,
+        "decay_violation_fraction": 0.022106109324758844,
+        "epoch": 2700,
+        "maximum_decay_residual": 1.4495302494957352,
+        "maximum_positivity_residual": 0.049379862240820055,
+        "outer_mean": 0.009656971509767211,
+        "outer_worst_fraction": 0.1929842981228982,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.39190941882712066,
+        "control_regularization": 97.67672576329565,
+        "decay_violation_fraction": 0.0199959807073955,
+        "epoch": 2800,
+        "maximum_decay_residual": 1.461141908843749,
+        "maximum_positivity_residual": 0.04972995815606332,
+        "outer_mean": 0.009542420374551754,
+        "outer_worst_fraction": 0.19069511559746796,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.3754985277866372,
+        "control_regularization": 100.6311145282397,
+        "decay_violation_fraction": 0.02059887459807074,
+        "epoch": 2900,
+        "maximum_decay_residual": 1.4649754896690053,
+        "maximum_positivity_residual": 0.04833767102902357,
+        "outer_mean": 0.009141119688628307,
+        "outer_worst_fraction": 0.18267554847636328,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.3663028901107895,
+        "control_regularization": 103.4462661155481,
+        "decay_violation_fraction": 0.02009646302250804,
+        "epoch": 3000,
+        "maximum_decay_residual": 1.4641216515553759,
+        "maximum_positivity_residual": 0.047986366157696275,
+        "outer_mean": 0.008915972790408674,
+        "outer_worst_fraction": 0.17817622732961266,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.3538855251742479,
+        "control_regularization": 106.33413306925203,
+        "decay_violation_fraction": 0.018790192926045016,
+        "epoch": 3100,
+        "maximum_decay_residual": 1.4643457791475385,
+        "maximum_positivity_residual": 0.04500891774464615,
+        "outer_mean": 0.008612167804827497,
+        "outer_worst_fraction": 0.17210500801936393,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.3591741257918141,
+        "control_regularization": 107.85591447826688,
+        "decay_violation_fraction": 0.018488745980707395,
+        "epoch": 3200,
+        "maximum_decay_residual": 1.5640774201508336,
+        "maximum_positivity_residual": 0.044435646207398295,
+        "outer_mean": 0.00874088776542602,
+        "outer_worst_fraction": 0.17467733944080271,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.3346866097168386,
+        "control_regularization": 112.03896503272966,
+        "decay_violation_fraction": 0.018589228295819937,
+        "epoch": 3300,
+        "maximum_decay_residual": 1.4872677471923226,
+        "maximum_positivity_residual": 0.04310677770837256,
+        "outer_mean": 0.008142141828895338,
+        "outer_worst_fraction": 0.162712039118808,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.3291202667605486,
+        "control_regularization": 114.53696830446619,
+        "decay_violation_fraction": 0.017885852090032156,
+        "epoch": 3400,
+        "maximum_decay_residual": 1.53966755655229,
+        "maximum_positivity_residual": 0.041155241460069984,
+        "outer_mean": 0.008005661148151995,
+        "outer_worst_fraction": 0.15998461796467597,
+        "positivity_violation_fraction": 0.0009043408360128617
+      },
+      {
+        "combined_objective": 0.31265309226236293,
+        "control_regularization": 119.67605341468898,
+        "decay_violation_fraction": 0.018187299035369774,
+        "epoch": 3500,
+        "maximum_decay_residual": 1.482947757341915,
+        "maximum_positivity_residual": 0.040313982279942144,
+        "outer_mean": 0.007602453347742947,
+        "outer_worst_fraction": 0.15192693919023653,
+        "positivity_violation_fraction": 0.0009043408360128617
+      },
+      {
+        "combined_objective": 0.3074663030384264,
+        "control_regularization": 124.05628045494868,
+        "decay_violation_fraction": 0.016680064308681672,
+        "epoch": 3600,
+        "maximum_decay_residual": 1.546061557178805,
+        "maximum_positivity_residual": 0.04325951279117621,
+        "outer_mean": 0.00747477789611169,
+        "outer_worst_fraction": 0.14937548116888263,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.2921667682292345,
+        "control_regularization": 130.47801914993187,
+        "decay_violation_fraction": 0.01597668810289389,
+        "epoch": 3700,
+        "maximum_decay_residual": 1.5203556218272753,
+        "maximum_positivity_residual": 0.049151399145230076,
+        "outer_mean": 0.00709975835912127,
+        "outer_worst_fraction": 0.14188111483930696,
+        "positivity_violation_fraction": 0.0008038585209003215
+      },
+      {
+        "combined_objective": 0.2884198651800293,
+        "control_regularization": 136.7895859667737,
+        "decay_violation_fraction": 0.01969453376205788,
+        "epoch": 3800,
+        "maximum_decay_residual": 1.5332682907010442,
+        "maximum_positivity_residual": 0.04935294021770831,
+        "outer_mean": 0.007006758196330755,
+        "outer_worst_fraction": 0.14002260556201543,
+        "positivity_violation_fraction": 0.0007033762057877814
+      },
+      {
+        "combined_objective": 0.2714274344851332,
+        "control_regularization": 142.623605366995,
+        "decay_violation_fraction": 0.01507234726688103,
+        "epoch": 3900,
+        "maximum_decay_residual": 1.541840273665997,
+        "maximum_positivity_residual": 0.04969871377230657,
+        "outer_mean": 0.006590559593121687,
+        "outer_worst_fraction": 0.13170531941917077,
+        "positivity_violation_fraction": 0.0006028938906752412
+      },
+      {
+        "combined_objective": 0.26320130958219784,
+        "control_regularization": 148.0087384160755,
+        "decay_violation_fraction": 0.01537379421221865,
+        "epoch": 4000,
+        "maximum_decay_residual": 1.5481685820916467,
+        "maximum_positivity_residual": 0.047870997099965264,
+        "outer_mean": 0.0063884505761504975,
+        "outer_worst_fraction": 0.12766638581094328,
+        "positivity_violation_fraction": 0.0008038585209003215
+      },
+      {
+        "combined_objective": 0.2606231055598493,
+        "control_regularization": 151.80025481102587,
+        "decay_violation_fraction": 0.014569935691318328,
+        "epoch": 4100,
+        "maximum_decay_residual": 1.6061007074891993,
+        "maximum_positivity_residual": 0.04718921119216197,
+        "outer_mean": 0.00632459275070317,
+        "outer_worst_fraction": 0.12639025513051794,
+        "positivity_violation_fraction": 0.0009043408360128617
+      },
+      {
+        "combined_objective": 0.24996244748322716,
+        "control_regularization": 158.07074348934077,
+        "decay_violation_fraction": 0.013665594855305467,
+        "epoch": 4200,
+        "maximum_decay_residual": 1.5574545342782942,
+        "maximum_positivity_residual": 0.04499105377861696,
+        "outer_mean": 0.006062842199003539,
+        "outer_worst_fraction": 0.1211594489246651,
+        "positivity_violation_fraction": 0.0011053054662379421
+      },
+      {
+        "combined_objective": 0.2481004907667059,
+        "control_regularization": 161.51857234824956,
+        "decay_violation_fraction": 0.013665594855305467,
+        "epoch": 4300,
+        "maximum_decay_residual": 1.5878228732563784,
+        "maximum_positivity_residual": 0.044838364392802345,
+        "outer_mean": 0.006016551412191221,
+        "outer_worst_fraction": 0.1202343768155161,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.23907123232606728,
+        "control_regularization": 166.53046693459362,
+        "decay_violation_fraction": 0.012962218649517685,
+        "epoch": 4400,
+        "maximum_decay_residual": 1.5390885695916705,
+        "maximum_positivity_residual": 0.04051244640534473,
+        "outer_mean": 0.005794929515392963,
+        "outer_worst_fraction": 0.11580549907066419,
+        "positivity_violation_fraction": 0.0010048231511254019
+      },
+      {
+        "combined_objective": 0.23632424091807433,
+        "control_regularization": 167.790973394014,
+        "decay_violation_fraction": 0.013163183279742766,
+        "epoch": 4500,
+        "maximum_decay_residual": 1.5681399014725088,
+        "maximum_positivity_residual": 0.03930558063579072,
+        "outer_mean": 0.005727569499544104,
+        "outer_worst_fraction": 0.11445938084229504,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.23430116331287804,
+        "control_regularization": 168.93117356272447,
+        "decay_violation_fraction": 0.013263665594855305,
+        "epoch": 4600,
+        "maximum_decay_residual": 1.5775767074334563,
+        "maximum_positivity_residual": 0.03785929249290769,
+        "outer_mean": 0.0056779091307455586,
+        "outer_worst_fraction": 0.11346697122325261,
+        "positivity_violation_fraction": 0.0012057877813504824
+      },
+      {
+        "combined_objective": 0.22435232533764327,
+        "control_regularization": 172.31645667334993,
+        "decay_violation_fraction": 0.013163183279742766,
+        "epoch": 4700,
+        "maximum_decay_residual": 1.4969689078277024,
+        "maximum_positivity_residual": 0.03935934374575418,
+        "outer_mean": 0.0054342379209838775,
+        "outer_worst_fraction": 0.10859746142496295,
+        "positivity_violation_fraction": 0.0013062700964630225
+      },
+      {
+        "combined_objective": 0.2222666346484658,
+        "control_regularization": 170.94711562784815,
+        "decay_violation_fraction": 0.012660771704180064,
+        "epoch": 4800,
+        "maximum_decay_residual": 1.6085324775105305,
+        "maximum_positivity_residual": 0.03741812790446084,
+        "outer_mean": 0.005383661769390711,
+        "outer_worst_fraction": 0.10758675086139831,
+        "positivity_violation_fraction": 0.0015072347266881028
+      },
+      {
+        "combined_objective": 0.21187842210123545,
+        "control_regularization": 175.96081505367044,
+        "decay_violation_fraction": 0.012057877813504822,
+        "epoch": 4900,
+        "maximum_decay_residual": 1.4653367514774223,
+        "maximum_positivity_residual": 0.036020261490404895,
+        "outer_mean": 0.005128868216226252,
+        "outer_worst_fraction": 0.10249497286723624,
+        "positivity_violation_fraction": 0.001607717041800643
+      },
+      {
+        "combined_objective": 0.20705273366433538,
+        "control_regularization": 177.8396955042096,
+        "decay_violation_fraction": 0.011555466237942123,
+        "epoch": 5000,
+        "maximum_decay_residual": 1.4466532753925612,
+        "maximum_positivity_residual": 0.034357298381705446,
+        "outer_mean": 0.005010617570886581,
+        "outer_worst_fraction": 0.10013185956920335,
+        "positivity_violation_fraction": 0.0018086816720257234
+      },
+      {
+        "combined_objective": 0.20176049472695873,
+        "control_regularization": 181.2717157844099,
+        "decay_violation_fraction": 0.011856913183279742,
+        "epoch": 5100,
+        "maximum_decay_residual": 1.4512618002974729,
+        "maximum_positivity_residual": 0.04096903878738009,
+        "outer_mean": 0.004880599609323551,
+        "outer_worst_fraction": 0.09753358897989554,
+        "positivity_violation_fraction": 0.0017081993569131833
+      },
+      {
+        "combined_objective": 0.19768952303532525,
+        "control_regularization": 185.1284158944157,
+        "decay_violation_fraction": 0.011354501607717041,
+        "epoch": 5200,
+        "maximum_decay_residual": 1.4498604550176426,
+        "maximum_positivity_residual": 0.04112902512496369,
+        "outer_mean": 0.004780288352143799,
+        "outer_worst_fraction": 0.09552897526211865,
+        "positivity_violation_fraction": 0.0018086816720257234
+      },
+      {
+        "combined_objective": 0.19309389532517154,
+        "control_regularization": 189.90313143980148,
+        "decay_violation_fraction": 0.011254019292604502,
+        "epoch": 5300,
+        "maximum_decay_residual": 1.4887829305341358,
+        "maximum_positivity_residual": 0.04654851783046347,
+        "outer_mean": 0.004666946489430704,
+        "outer_worst_fraction": 0.09326395876067142,
+        "positivity_violation_fraction": 0.0020096463022508037
+      },
+      {
+        "combined_objective": 0.21167318917750358,
+        "control_regularization": 192.27548699149503,
+        "decay_violation_fraction": 0.009545819935691318,
+        "epoch": 5400,
+        "maximum_decay_residual": 1.5346093055288992,
+        "maximum_positivity_residual": 0.040558158622004924,
+        "outer_mean": 0.005119876300616564,
+        "outer_worst_fraction": 0.10231527900348604,
+        "positivity_violation_fraction": 0.002411575562700965
+      },
+      {
+        "combined_objective": 0.18401585680264254,
+        "control_regularization": 198.71400801503916,
+        "decay_violation_fraction": 0.0107516077170418,
+        "epoch": 5500,
+        "maximum_decay_residual": 1.5330728253729078,
+        "maximum_positivity_residual": 0.04800809400943754,
+        "outer_mean": 0.004443206593853597,
+        "outer_worst_fraction": 0.08879275506431927,
+        "positivity_violation_fraction": 0.001607717041800643
+      },
+      {
+        "combined_objective": 0.17927852532403393,
+        "control_regularization": 202.33492852635058,
+        "decay_violation_fraction": 0.01034967845659164,
+        "epoch": 5600,
+        "maximum_decay_residual": 1.514612003631104,
+        "maximum_positivity_residual": 0.049353677017172956,
+        "outer_mean": 0.004326687465312601,
+        "outer_worst_fraction": 0.08646424428672891,
+        "positivity_violation_fraction": 0.0017081993569131833
+      },
+      {
+        "combined_objective": 0.17463630424182777,
+        "control_regularization": 206.03094756318052,
+        "decay_violation_fraction": 0.01034967845659164,
+        "epoch": 5700,
+        "maximum_decay_residual": 1.5319309352272663,
+        "maximum_positivity_residual": 0.04899971125064856,
+        "outer_mean": 0.004212471590705106,
+        "outer_worst_fraction": 0.08418176158774543,
+        "positivity_violation_fraction": 0.0018086816720257234
+      },
+      {
+        "combined_objective": 0.17149849635931003,
+        "control_regularization": 208.80353549098152,
+        "decay_violation_fraction": 0.0102491961414791,
+        "epoch": 5800,
+        "maximum_decay_residual": 1.546360220475117,
+        "maximum_positivity_residual": 0.04797526576518782,
+        "outer_mean": 0.004135202900705388,
+        "outer_worst_fraction": 0.08263762905184742,
+        "positivity_violation_fraction": 0.0017081993569131833
+      },
+      {
+        "combined_objective": 0.16876824567285856,
+        "control_regularization": 211.8283958153401,
+        "decay_violation_fraction": 0.00964630225080386,
+        "epoch": 5900,
+        "maximum_decay_residual": 1.5445769896767216,
+        "maximum_positivity_residual": 0.0451133878060606,
+        "outer_mean": 0.004067820847658229,
+        "outer_worst_fraction": 0.08129107043352347,
+        "positivity_violation_fraction": 0.0019091639871382637
+      },
+      {
+        "combined_objective": 0.16418723971605753,
+        "control_regularization": 215.2642449131169,
+        "decay_violation_fraction": 0.01004823151125402,
+        "epoch": 6000,
+        "maximum_decay_residual": 1.5353444612686027,
+        "maximum_positivity_residual": 0.04736026767556318,
+        "outer_mean": 0.003955162701643434,
+        "outer_worst_fraction": 0.07903971728264148,
+        "positivity_violation_fraction": 0.001607717041800643
+      }
+    ],
+    "lyapunov_trainable_parameters": 384,
+    "maximum_decay_residual": 1.5353444612686027,
+    "maximum_positivity_residual": 0.04736026767556318,
+    "outer_mean": 0.003955162701643434,
+    "outer_worst_fraction": 0.07903971728264148,
+    "positivity_violation_fraction": 0.001607717041800643,
     "training_grid_convention": "100x100 cell midpoints",
-    "training_points_outside_B_kappa": 9952
+    "training_points_outside_B_kappa": 9952,
+    "wall_time_seconds": 264.544516512
   },
   "trajectories": {
     "final_time": 40.0,
     "initial_condition_grid": "25x21; periodic angle endpoint counted once",
     "initial_conditions": 525,
-    "initial_conditions_in_inner_boundary_band_0.95c_to_c": 6,
-    "initial_conditions_in_outer_boundary_band_c_to_1.05c": 7,
-    "initial_conditions_in_roa_grid_level": 59,
+    "initial_conditions_in_inner_boundary_band_0.95c_to_c": 3,
+    "initial_conditions_in_outer_boundary_band_c_to_1.05c": 10,
+    "initial_conditions_in_roa_grid_level": 56,
     "integration_method": "classical RK4 with wrapped angle",
     "integration_step": 0.01,
     "interpretation": "empirical fixed-step trajectory check, not an ROA proof",
-    "maximum_absolute_velocity_over_trajectories": 8.155653435348857,
-    "maximum_final_V_local": 1.078937210235362e-08,
-    "minimum_crossing_speed_among_successful_crossings": 0.11110827052776774,
+    "maximum_absolute_velocity_over_trajectories": 8.118442152987445,
+    "maximum_final_V_local": 5.318014945856843e-08,
+    "minimum_crossing_speed_among_successful_crossings": 0.16719547126961398,
     "nonfinite_trajectories": 0,
-    "roa_grid_level": 3.466,
+    "roa_grid_level": 3.436,
     "success_fraction": 1.0,
     "successful_at_final_time": 525,
-    "successful_initial_conditions_in_inner_boundary_band": 6,
-    "successful_initial_conditions_in_outer_boundary_band": 7,
-    "successful_initial_conditions_in_roa_grid_level": 59,
+    "successful_initial_conditions_in_inner_boundary_band": 3,
+    "successful_initial_conditions_in_outer_boundary_band": 10,
+    "successful_initial_conditions_in_roa_grid_level": 56,
     "successful_trajectories_crossing_theta_plus_or_minus_pi_over_2": 313,
-    "successful_without_leaving_training_domain": 343,
+    "successful_without_leaving_training_domain": 344,
     "target_level_V_local": 0.0001,
     "trajectories_crossing_theta_plus_or_minus_pi_over_2": 313,
     "trajectories_entering_B_kappa": 525,
-    "trajectories_exceeding_training_velocity_domain": 182,
+    "trajectories_exceeding_training_velocity_domain": 181,
     "trajectories_reaching_target_level": 525
   },
   "validation": {
     "full_domain": {
-      "maximum_dV": 0.6337056599161834,
+      "maximum_dV": 0.6574524033721435,
       "minimum_V": 0.00013266915835930077,
-      "nonnegative_dV_fraction": 0.00333955223880597,
+      "nonnegative_dV_fraction": 0.0032711442786069653,
       "points": 160800,
-      "positive_decay_residual_fraction": 0.009894278606965174
+      "positive_decay_residual_fraction": 0.010031094527363183
     },
     "interpretation": "independent finite-sample check, not a theorem",
     "local_domain": {
@@ -288,36 +987,36 @@
     "maximum_abs_control_difference_on_inner_boundary": 4.440892098500626e-16,
     "maximum_periodic_edge_VNN_mismatch": 0.0,
     "maximum_periodic_edge_control_mismatch": 0.0,
-    "maximum_raw_W_margin_violation_outside_B_kappa": 0.048946140648252534,
+    "maximum_raw_W_margin_violation_outside_B_kappa": 0.04893850923231735,
     "maximum_transition_weight_on_inner_boundary": 2.3111159332646788e-29,
-    "minimum_raw_W_outside_B_kappa": 0.0010538593517474702,
+    "minimum_raw_W_outside_B_kappa": 0.0010614907676826484,
     "objective_on_validation_points_outside_B_kappa": {
-      "combined_objective": 0.1693601627445105,
-      "control_regularization": 215.30175330252663,
-      "outer_mean": 0.004078621017929815,
-      "outer_worst_fraction": 0.0815642620967777
+      "combined_objective": 0.16768925934136653,
+      "control_regularization": 215.35283042692643,
+      "outer_mean": 0.004037850840478951,
+      "outer_worst_fraction": 0.08074894009830916
     },
     "outer_domain": {
-      "maximum_dV": 0.6337056599161834,
-      "minimum_V": 0.12196701800062967,
-      "nonnegative_dV_fraction": 0.0033747266282898873,
+      "maximum_dV": 0.6574524033721435,
+      "minimum_V": 0.12274795910579744,
+      "nonnegative_dV_fraction": 0.003305598149870541,
       "points": 159124,
-      "positive_decay_residual_fraction": 0.009998491742289032
+      "positive_decay_residual_fraction": 0.010136748699127724
     },
-    "raw_W_below_epsilon_fraction_outside_B_kappa": 0.0017128853992148232,
+    "raw_W_below_epsilon_fraction_outside_B_kappa": 0.001681628366382436,
     "roa_estimate": {
-      "c_conservative": 3.466,
-      "c_grid_pass": 3.470638464899101,
-      "component_validation_points": 18893,
+      "c_conservative": 3.436,
+      "c_grid_pass": 3.4412699795011985,
+      "component_validation_points": 18349,
       "critical_refinement": {
-        "critical_level_estimate": 3.4664871442366376,
+        "critical_level_estimate": 3.436963163356649,
         "critical_point_estimate": [
-          1.4681556877055728,
-          -0.29801366054751255
+          1.4678147012264606,
+          -0.29723682291208015
         ],
-        "dV_at_critical_point": -2.653433028854124e-14,
+        "dV_at_critical_point": -9.442446824436956e-14,
         "interpretation": "local constrained minimization of V subject to dV=0, seeded by the independent grid; numerical estimate, not root isolation",
-        "reported_conservative_level": 3.466,
+        "reported_conservative_level": 3.436,
         "rounding_rule": "critical level rounded downward to 3 decimal places",
         "successful_local_refinements": 24
       },
@@ -326,14 +1025,14 @@
       "maximum_dV_in_component_except_target": -0.0002454607918731659,
       "minimum_V_in_component_except_target": 0.00013266915835930077,
       "nonnegative_dV_points_in_component_except_target": 0,
-      "selected_level": 3.466,
+      "selected_level": 3.436,
       "selection_rule": "minimum of the downward-rounded 401x401 and 801x801 estimates",
-      "sublevel_validation_points": 18893,
+      "sublevel_validation_points": 18349,
       "touches_validation_velocity_boundary": false
     },
     "transition_annulus": {
-      "maximum_dV": -0.09210354617765754,
-      "minimum_V": 0.05015906607030484,
+      "maximum_dV": -0.09049564290798118,
+      "minimum_V": 0.05015911690039913,
       "nonnegative_dV_fraction": 0.0,
       "points": 840,
       "positive_decay_residual_fraction": 0.0

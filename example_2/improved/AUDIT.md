@@ -91,9 +91,9 @@ midpoint grid is used as a resolution audit.
 The objective values evaluated after the final optimizer update are
 
 ```text
-training 100x100 combined objective     = 0.16608341281928593
-validation 401x401 combined objective   = 0.16936016274451050
-audit 801x801 combined objective        = 0.16945453931764880
+training 100x100 combined objective     = 0.16418723971605753
+validation 401x401 combined objective   = 0.16768925934136653
+audit 801x801 combined objective        = 0.16774490111811785
 ```
 
 The two validation values use exactly the training objective weights; neither
@@ -104,12 +104,12 @@ local points, excluding target       = 836
 max dV_NN in local region            = -0.0002454607918731659
 
 transition points                    = 840
-max dV_NN in transition              = -0.09210354617765754
+max dV_NN in transition              = -0.09049564290798118
 
 full nonzero validation points       = 160,800
-max dV_NN on full rectangle          = +0.6337056599161834
-fraction dV_NN >= 0                  = 0.00333955223880597
-fraction dV_NN+0.1 V_NN > 0         = 0.009894278606965174
+max dV_NN on full rectangle          = +0.6574524033721435
+fraction dV_NN >= 0                  = 0.0032711442786069653
+fraction dV_NN+0.1 V_NN > 0         = 0.010031094527363183
 ```
 
 Thus the full rectangle does not have a strict neural Lyapunov certificate.
@@ -131,11 +131,11 @@ the upper or lower velocity boundary. The first low-value samples with
 precision:
 
 ```text
-critical level estimate                     = 3.4664871442366
-critical point estimate                     = (1.4681556877,-0.2980136606)
-reported level, rounded downward             = 3.466
-401x401 points in connected component        = 18,893
-801x801 points in connected component        = 75,361
+critical level estimate                     = 3.4369631633566
+critical point estimate                     = (1.4678147012,-0.2972368229)
+reported level, rounded downward             = 3.436
+401x401 points in connected component        = 18,349
+801x801 points in connected component        = 73,234
 nonnegative-dV points in either component    = 0
 disconnected points in either sublevel       = 0
 touches velocity boundary                  = false
@@ -154,18 +154,18 @@ initial conditions.
 final time                                  = 40
 integration step                            = 0.01
 successful trajectories                     = 525/525
-initial conditions inside V_NN<=c           = 59
-successes among those 59                     = 59
-initial conditions in 0.95c<=V_NN<=c        = 6/6 successful
-initial conditions in c<V_NN<=1.05c         = 7/7 successful
+initial conditions inside V_NN<=c           = 56
+successes among those 56                     = 56
+initial conditions in 0.95c<=V_NN<=c        = 3/3 successful
+initial conditions in c<V_NN<=1.05c         = 10/10 successful
 trajectories crossing theta=+-pi/2          = 313
-minimum recorded crossing speed             = 0.1111082705
-trajectories leaving |theta_dot|<=4          = 182
-maximum observed |theta_dot|                 = 8.1556534353
+minimum recorded crossing speed             = 0.1671954713
+trajectories leaving |theta_dot|<=4          = 181
+maximum observed |theta_dot|                 = 8.1184421530
 ```
 
-Only 343 trajectories stay inside the velocity interval used for training and
-rectangular validation. The other 182 successful trajectories use the learned
+Only 344 trajectories stay inside the velocity interval used for training and
+rectangular validation. The other 181 successful trajectories use the learned
 controller outside that interval and are therefore labelled as extrapolation,
 not as validation-domain evidence.
 
@@ -201,10 +201,10 @@ gravity and control contributions.
 The dense zero-velocity scan detects four equilibria:
 
 ```text
-theta = -1.4932806571   saddle
+theta = -1.4935794869   saddle
 theta =  0              asymptotically stable target
-theta =  1.4313954898   saddle
-theta =  1.7075779461   unstable focus by linearization
+theta =  1.4309897703   saddle
+theta =  1.7063383232   unstable focus by linearization
 ```
 
 The classifications use eigenvalues of numerically evaluated closed-loop
@@ -220,14 +220,22 @@ result, not as a global proof.
 
 ## Software audit
 
-- all 56 repository unit tests pass in the recorded environment;
+- all repository unit tests pass in the recorded environment;
 - two complete 6,000-step runs produced identical numerical tensor hashes:
-  `d675ad589fb684a6f661d3e85fe212aaf2e484f0a8171bd6e8e2171aa5ba709c`
+  `2ea91b22b3ff9196032e72e7aa16f13fd8648ed43794d5deab5bfbfeaefa6677`
   for the Lyapunov network and
-  `afa25a66afdd6832bd770ab629d08f603b7d97b2133c1f76fce4ef65c4b82244`
+  `040314e2cd53b856491d2b9cf98389e778a598b158313dd7990ec85a09d1fb0b`
   for the controller;
 - the positive-part/epsilon zero-gradient distinction has a dedicated test;
 - the local matrix equation, analytic local bound, periodic seam, smoothstep
   endpoint slopes, and target zeros have dedicated tests;
 - all saved metrics are evaluated after the final optimizer update;
 - training and validation midpoint grids are disjoint.
+
+The current record also stores the Python, PyTorch, NumPy, SciPy and
+Matplotlib versions, the CPU platform, the number of PyTorch threads, and wall
+time. An earlier checkpoint in the repository history gave `c=3.466`; rerunning
+the unchanged training code in the now-recorded environment gives `c=3.436`.
+The current checkpoint, JSON record, and all current figures use the latter
+value consistently. This illustrates that a fixed seed alone does not make a
+nonconvex training result portable across unrecorded execution environments.

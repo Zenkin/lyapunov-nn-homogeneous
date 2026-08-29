@@ -37,13 +37,21 @@ following a framework layer.
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 python -m pip install -r example_1/improved/requirements.txt
+python -m pip install -r example_2/improved/requirements.txt
 ```
 
 Run the improved experiment:
 
 ```bash
 python example_1/improved/example1.py \
-  --outdir example_1/improved/results/reference
+  --outdir example_1/improved/figures/reference
+```
+
+Run the improved second experiment:
+
+```bash
+python -m example_2.improved.example2 \
+  --outdir example_2/improved/figures/reference
 ```
 
 Run the article-version implementation of Example 2:
@@ -70,6 +78,13 @@ python example_1/improved/example1.py --quick \
   --outdir example_1/improved/results/quick
 ```
 
+Build the manuscript-ready reproducibility tables directly from the saved JSON
+records:
+
+```bash
+python publication/make_summary.py
+```
+
 ## Current numerical result
 
 For the recorded improved run, the independent validation set contained
@@ -85,6 +100,13 @@ nonnegative-derivative fraction  = 0
 
 The corresponding configuration, validation design, and limitations are
 documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
+
+For the recorded improved Example 2 run, the selected origin-connected sampled
+level is `V_NN<=3.436`. Both the `401x401` and `801x801` audits contain zero
+points with nonnegative derivative inside that component. All `525/525`
+declared trajectories reach the target by `t=40`. Red derivative-sign
+violations remain outside the selected component and are retained in the
+published condition map.
 
 For the recorded Example 2 implementation, the boundary-including `201 x 201`
 grid found sparse derivative-sign violations. This grid contains the midpoint

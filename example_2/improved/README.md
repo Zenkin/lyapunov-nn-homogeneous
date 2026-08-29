@@ -59,15 +59,15 @@ From the repository root:
 ```bash
 python -m unittest example_2.improved.test_example2
 python -m example_2.improved.example2 \
-  --outdir example_2/improved/results/reference
+  --outdir example_2/improved/figures/reference
 ```
 
 The deterministic reference run uses a `100x100` training midpoint grid,
 6,000 Adam steps, an independent `401x401` validation midpoint grid, and a
 second `801x801` resolution audit.
 
-The final combined objective is `0.1660834` on the training grid, `0.1693602`
-on the `401x401` grid, and `0.1694545` on the `801x801` grid. These values use
+The final combined objective is `0.1641872` on the training grid, `0.1676893`
+on the `401x401` grid, and `0.1677449` on the `801x801` grid. These values use
 the same mean, worst-5% tail, and control-regularization weights.
 
 ## Recorded result
@@ -75,14 +75,14 @@ the same mean, worst-5% tail, and control-regularization weights.
 The first numerically refined contact with `dV_NN/dt=0` occurs at
 
 ```text
-V_NN = 3.4664871442366,
-x    = (1.4681556877, -0.2980136606).
+V_NN = 3.4369631633566,
+x    = (1.4678147012, -0.2972368229).
 ```
 
 The reported level is rounded downward to
 
 ```text
-c = 3.466.
+c = 3.436.
 ```
 
 Both validation resolutions contain zero samples with `dV_NN/dt>=0` in the
@@ -95,7 +95,7 @@ reach `V_l<=1e-4` by `t=40`. Of these trajectories, 313 cross at least one of
 the lines `theta=+-pi/2` with nonzero angular velocity. The count at `t=20` is
 `524/525` for integration steps `0.02`, `0.01`, and `0.005`; the remaining
 trajectory reaches the target when the horizon is extended to `t=40`.
-All 6 sampled initial conditions in `0.95c<=V_NN<=c` and all 7 sampled
+All 3 sampled initial conditions in `0.95c<=V_NN<=c` and all 10 sampled
 conditions in `c<V_NN<=1.05c` also reach the target. The latter are empirical
 results outside the Lyapunov-audited component, not certificate points.
 
@@ -109,5 +109,7 @@ The committed figures are:
 - [`loss_of_authority_crossing.png`](figures/reference/loss_of_authority_crossing.png):
   a successful passage through `theta=+-pi/2`, where the control contribution
   is zero but gravity is nonzero.
+- [`training_history.png`](figures/reference/training_history.png): the recorded
+  full-batch objective and sampled violation fractions over 6,000 epochs.
 
 Detailed limitations and numerical checks are recorded in [`AUDIT.md`](AUDIT.md).

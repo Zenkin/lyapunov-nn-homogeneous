@@ -29,7 +29,7 @@ class SystemParameters:
     a3: float = 1.0
     c1: float = 1.0
     c2: float = 2.0
-    # Fc and vs are reconstructed from branch dev_w, not from the article.
+    # Fc and vs follow branch dev_w; the article does not state them explicitly.
     friction_amplitude: float = 0.8
     friction_velocity: float = 0.5
 
