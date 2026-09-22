@@ -1,103 +1,136 @@
 # Neural Lyapunov functions with homogeneous approximation
 
-This is the official source-code repository accompanying the article
-*A neural network-based stability analysis and stabilization through
-homogeneous approximations*. The repository is maintained by the authors of
-the article and contains the public implementations of its first numerical
-example.
+Source code accompanying *A neural network-based stability analysis and
+stabilization through homogeneous approximations*, maintained by the authors.
+The repository contains both numerical examples, their implementation tests,
+and recorded numerical audits.
 
-The code is organized around two versions of the same idea: learn a Lyapunov
-candidate for the homogeneous approximation at infinity, learn a second
-candidate on the bounded transition region, and unite the two functions.
+**All maintained implementations are available on `main`.** Start with the
+article implementations to inspect the constructions described in the paper;
+the corrected and improved variants are explicitly identified below.
 
-| Version | Construction | Purpose |
-| --- | --- | --- |
-| [`example_1/original`](example_1/original) | Minimum-based gluing from equation (16) | Public implementation of the construction presented in the article |
-| [`example_1/improved`](example_1/improved) | Positive-definite inner model with smooth level-set gluing | Subsequent modification developed by the authors after revisiting the numerical example |
+## Guide to the experiments
 
-Both folders are self-contained so that the equations, training loop,
-validation procedure, and saved results can be inspected without following a
-framework layer.
+| Example | Implementation | Relationship to the article | Numerical audit |
+| --- | --- | --- | --- |
+| 1: stability analysis | [`original`](example_1/original) | Minimum-based gluing from equation (16) | [Audit](example_1/original/AUDIT.md) |
+| 1: stability analysis | [`improved`](example_1/improved) | Subsequent positive-definite inner model and smooth level-set gluing | [Audit](example_1/improved/AUDIT.md) |
+| 2: pendulum stabilization | [`article_version`](example_2/article_version) | Displayed equations, including the matrix printed in the article | [Audit](example_2/article_version/AUDIT.md) |
+| 2: pendulum stabilization | [`corrected_matrix`](example_2/corrected_matrix) | Controlled reruns correcting the linearization, with switching-surface diagnostics | [Audit](example_2/corrected_matrix/AUDIT.md) |
+| 2: pendulum stabilization | [`improved`](example_2/improved) | Subsequent smooth periodic local-to-neural extension | [Audit](example_2/improved/AUDIT.md) |
 
-## Quick start
+The article does not specify every numerical parameter needed to reconstruct
+the original runs. The article implementations therefore document their
+additional numerical choices; they are not claimed to reproduce the historical
+weights or figures exactly. Corrections and later extensions remain separate
+from these implementations.
+
+## Installation
+
+Use **Python 3.12** and the pinned CPU dependencies. The saved reference runs
+used Python 3.12.13 on Linux; their full environments are recorded in the
+[reproducibility summary](publication/reference/reproducibility_summary.md).
 
 ```bash
+git clone https://github.com/Zenkin/lyapunov-nn-homogeneous.git
+cd lyapunov-nn-homogeneous
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-python -m pip install -r example_1/improved/requirements.txt
 ```
 
-Run the improved experiment:
+Activate the environment:
 
 ```bash
-python example_1/improved/example1.py \
-  --outdir example_1/improved/results/reference
+# Linux shell
+source .venv/bin/activate
 ```
 
-Run the implementation tests:
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+Then install the dependencies for all five implementations:
 
 ```bash
-python -m unittest example_1.original.test_example1
-python -m unittest example_1.improved.test_example1
+python -m pip install -r requirements.txt
 ```
 
-Short smoke runs are available for installation checks:
+The pinned `torch==2.8.0+cpu` environment targets Linux and Windows.
+
+## Check the installation
+
+Run all implementation tests from the repository root:
 
 ```bash
-python example_1/original/example1.py --quick \
-  --outdir example_1/original/results/quick
-python example_1/improved/example1.py --quick \
-  --outdir example_1/improved/results/quick
+python -m unittest discover -v
 ```
 
-## Current numerical result
+For short end-to-end checks of the article implementations:
 
-For the recorded improved run, the independent validation set contained
-54,140 points outside the compact set `X`. The smallest sampled candidate value
-was positive and the largest sampled directional derivative was negative:
-
-```text
-min V_smooth                     = +0.012761223688969375
-max D V_smooth f                 = -0.04414346562709255
-nonpositive-value fraction       = 0
-nonnegative-derivative fraction  = 0
+```bash
+python -m example_1.original.example1 --quick --outdir example_1/original/results/quick
+python -m example_2.article_version.example2 --quick --outdir example_2/article_version/results/quick
 ```
 
-The corresponding configuration, validation design, and limitations are
-documented in [`example_1/improved/AUDIT.md`](example_1/improved/AUDIT.md).
+Quick runs use reduced training and validation settings. Their metrics are
+installation diagnostics, not reference results. Use the
+[reproduction guide](docs/REPRODUCIBILITY.md) for full runs, all five smoke
+commands, and output locations.
 
-## Implementation and validation notes
+## Inspect the recorded results
 
-The article does not fix every low-level numerical setting needed for a public
-software implementation. For this release, the dry-friction law, optimizer
-settings, random seed, grid coordinates, and empirical selection of `kappa`
-are therefore stated explicitly in the code and saved configuration files.
+The committed records and figures can be reviewed without training a model:
 
-The `original` version follows the minimum-based construction presented in the
-article. Its current validation record includes small decay and dominance
-violations on an independent finite grid. We retain and report this result as
-part of the numerical audit. The `improved` version replaces the minimum with
-a smooth level-set transition and passes the stated finite-grid checks for the
-recorded seed.
+| Material | Location |
+| --- | --- |
+| Example 1, improved: figures, configuration, metrics, and weights | [`example_1/improved/figures/reference`](example_1/improved/figures/reference) |
+| Example 2, article implementation: figures and run record | [`example_2/article_version/figures/reference`](example_2/article_version/figures/reference) |
+| Example 2, corrected matrix: switching-surface audit and weights | [`example_2/corrected_matrix/figures/reference/invariance_audit`](example_2/corrected_matrix/figures/reference/invariance_audit) |
+| Example 2, improved: figures, run record, and weights | [`example_2/improved/figures/reference`](example_2/improved/figures/reference) |
+| Improved examples: training protocol, numerical checks, and environments | [`publication/reference`](publication/reference) |
 
-These computations are numerical evidence on finite domains. They are not a
-continuous-domain or unbounded-domain certificate.
+The documented commands write to ignored `results/` directories within each implementation.
+The committed `figures/reference/` directories retain the published records.
+
+## Interpretation of the numerical checks
+
+- **Example 1, original:** the recorded finite-grid audit retains small decay
+  and dominance violations. A full run exits nonzero when its audit fails,
+  after saving the results.
+- **Example 1, improved:** the recorded run has positive candidate values and
+  negative directional derivatives at all 54,140 independent validation
+  points outside `X`. Its maximum sampled derivative is
+  `-0.04414346562709255`.
+- **Example 2, article implementation:** the printed linear matrix differs
+  from the Jacobian of the displayed nonlinear system. The code preserves that
+  matrix and reports the discrepancy. Learned and switched derivatives retain
+  sparse sign violations on the boundary-including grid, which overlaps the
+  training grid.
+- **Example 2, improved:** the recorded `401x401` and `801x801` audits have no
+  nonnegative derivative samples in the selected origin-connected component
+  `V_NN <= 3.436`. All `525/525` declared trajectories reach the target by
+  `t=40`; violations outside the selected component remain visible in the
+  condition map.
+
+These are fixed-seed, finite-domain numerical results. They are not
+continuous-domain or unbounded-domain certificates. Each implementation's
+`AUDIT.md` states its assumptions, checks, and limitations.
 
 ## Repository layout
 
 ```text
 example_1/
-  README.md
-  original/
-    example1.py
-    test_example1.py
-    README.md
-    AUDIT.md
-    requirements.txt
-  improved/
-    example1.py
-    test_example1.py
-    README.md
-    AUDIT.md
-    requirements.txt
+  original/          # Article construction
+  improved/          # Smooth-gluing extension and recorded results
+example_2/
+  article_version/   # Printed equations and recorded results
+  corrected_matrix/  # Linearization controls and switching diagnostics
+  improved/          # Smooth periodic extension and recorded results
+publication/         # Tables generated from the committed JSON records
+docs/                # Reproduction instructions and branch provenance
+requirements.txt     # Installation entry point for all experiments
+LICENSE              # MIT license
 ```
+
+See [branch provenance](docs/PROVENANCE.md) for the preserved history of the
+consolidation into `main`. The code is distributed under the [MIT license](LICENSE).

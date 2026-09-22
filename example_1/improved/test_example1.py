@@ -41,7 +41,7 @@ class MathematicalIdentityTests(unittest.TestCase):
         value = shifted_field(torch.zeros((1, 2)), self.parameters, equilibrium)
         self.assertLess(torch.linalg.vector_norm(value).item(), 1e-13)
 
-    def test_reconstructed_friction_is_bounded_odd_and_zero_at_zero(self):
+    def test_dry_friction_is_bounded_odd_and_zero_at_zero(self):
         velocity = torch.tensor([-100.0, -0.3, 0.0, 0.3, 100.0])
         value = dry_friction(velocity, self.parameters)
         self.assertEqual(value[2].item(), 0.0)

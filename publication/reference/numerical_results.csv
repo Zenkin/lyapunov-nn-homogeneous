@@ -1,0 +1,3 @@
+experiment,primary_validation,minimum_candidate,maximum_derivative,nonnegative_derivative_points,reported_level,trajectory_success
+Example 1,54140 mixed-grid points,0.0127612237,-0.0441434656,0,V_inf = 2 kappa display boundary,625/625 in X at t=40
+Example 2,401x401 plus 801x801,3.3250156e-05,-6.15279486e-05,0,V_NN <= 3.436,525/525 reached target

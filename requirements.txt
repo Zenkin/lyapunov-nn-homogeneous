@@ -1,0 +1,3 @@
+# Shared installation entry point; experiment-level pins remain authoritative.
+-r example_1/improved/requirements.txt
+-r example_2/improved/requirements.txt

@@ -1,0 +1,59 @@
+{
+  "parameter_sources": {
+    "article": [
+      "a1, a2, a3, c1, c2",
+      "r=(1,2), nu=1, mu=2",
+      "outer hidden width 32",
+      "outer grid 100x100",
+      "tanh activation"
+    ],
+    "implementation_choices": [
+      "seed",
+      "homogeneous hidden width and all optimizer settings",
+      "training steps and validation densities",
+      "kappa sampling range and padding",
+      "inner optimizer settings, decay margin, and fixed quadratic coefficient",
+      "quintic smooth transition between kappa and 2*kappa"
+    ],
+    "repository_dev_w": [
+      "phi(v)=Fc*tanh(v/vs)",
+      "Fc=0.8, vs=0.5",
+      "drag=sqrt(abs(v))*v"
+    ]
+  },
+  "run": {
+    "history_every": 100,
+    "homogeneous_hidden": 32,
+    "homogeneous_learning_rate": 0.001,
+    "homogeneous_steps": 5000,
+    "homogeneous_train_points": 2048,
+    "homogeneous_validation_points": 8192,
+    "kappa_padding": 1.01,
+    "log_every": 500,
+    "outer_decay_margin": 0.05,
+    "outer_fixed_quadratic": 0.001,
+    "outer_grid_points_per_axis": 100,
+    "outer_hidden": 32,
+    "outer_learning_rate": 0.001,
+    "outer_steps": 12000,
+    "outer_validation_points_per_axis": 200,
+    "radial_angles": 512,
+    "radial_max": 8.0,
+    "radial_min": 0.25,
+    "radial_points": 256,
+    "seed": 20260820,
+    "trajectory_final_time": 40.0,
+    "trajectory_step": 0.01,
+    "trajectory_z1_points": 25,
+    "trajectory_z2_points": 25
+  },
+  "system": {
+    "a1": 1.0,
+    "a2": 2.0,
+    "a3": 1.0,
+    "c1": 1.0,
+    "c2": 2.0,
+    "friction_amplitude": 0.8,
+    "friction_velocity": 0.5
+  }
+}

@@ -9,7 +9,7 @@ properties observed only on sampled points.
 Nine unit tests cover:
 
 1. the equilibrium in original and shifted coordinates;
-2. boundedness, oddness, and the zero of the reconstructed dry friction;
+2. boundedness, oddness, and the zero of the implemented dry-friction law;
 3. scaling of the homogeneous gauge;
 4. degree-one homogeneity of `f_inf`;
 5. degree-two homogeneity of the complete candidate;
@@ -83,7 +83,7 @@ The normal run reports these checks and exits nonzero.
 
 ## Additional experiments
 
-The following alternatives were evaluated during reconstruction:
+The following alternatives were evaluated when fixing the dry-friction convention:
 
 - a Cartesian `100 x 100` grid, which undersampled a thin region near `z2=0`;
 - a free output bias in the square map;

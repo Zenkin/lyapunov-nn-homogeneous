@@ -135,10 +135,49 @@ h=3e-6   : -0.0836826031293721
 These values support negativity of the sampled upper directional derivative;
 a finite sequence of quotients is not a proof of its limiting value.
 
+## Publication grid and trajectories
+
+The display grid is a separate `401x401` Cartesian midpoint grid covering the
+full plotted rectangle. Outside `X` it contains 160,284 points:
+
+```text
+min V_smooth outside X                 = +0.01507057755769817
+max D V_smooth f outside X             = -0.04976504816705851
+nonpositive-value points outside X     = 0
+nonnegative-derivative points outside X = 0
+```
+
+This Cartesian grid is used for the publication image. The mixed level-angle,
+Cartesian, and near-axis validation above remains the primary numerical audit.
+
+Fixed-step RK4 was also applied to a boundary-including `25x25` grid over the
+plotted rectangle:
+
+```text
+final time                              = 40
+integration step                        = 0.01
+finite trajectories                     = 625/625
+trajectories entering X                 = 625/625
+trajectories in X at final time         = 625/625
+trajectories leaving after first entry  = 39
+```
+
+Thus the simulations support finite-horizon practical convergence to `X` for
+the declared initial-condition grid. They do not show that the rectangular set
+`X` is positively invariant, and they are not a continuous-domain proof.
+
+## Recorded environment
+
+The reference run used Python 3.12.13, PyTorch 2.8.0+cpu, NumPy 2.3.5 and
+Matplotlib 3.10.8 on x86-64 Linux with one intra-op and one inter-op PyTorch
+thread. The complete run took approximately 280.6 seconds in that environment.
+Only one fixed-seed run is reported; no across-seed mean or standard deviation
+is claimed.
+
 ## Scope and limitations
 
-1. The dry-friction law and its constants are reconstructed from repository
-   branch `dev_w`; the article does not report them.
+1. The dry-friction law and its constants follow repository branch `dev_w`;
+   the article does not report them.
 2. `kappa` is selected by a finite search over `0.25 <= rho <= 8`.
 3. Validation concerns `R^2 \ X`, as in the practical GAS example, rather than
    asymptotic stability of the equilibrium point itself.

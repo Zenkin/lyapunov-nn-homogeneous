@@ -52,9 +52,25 @@ python example_1/improved/example1.py --quick \
   --outdir example_1/improved/results/quick
 ```
 
-The run saves `config.json`, `metrics.json`, model weights, validation arrays,
-and the validation figure. A normal run exits nonzero if any finite-grid audit
-condition is not satisfied.
+The run saves `config.json`, `metrics.json`, model weights, validation and
+trajectory arrays, the two-stage training history, and publication figures.
+A normal run exits nonzero if any finite-grid audit condition is not satisfied.
+
+The homogeneous network uses 5,000 full-batch Adam epochs on 2,048 fixed
+sphere points. The inner network uses 12,000 full-batch Adam epochs on 9,452
+fixed points. Here one epoch means one optimizer update over the complete
+corresponding point set; mini-batches and early stopping are not used.
+
+The committed figures are:
+
+- [`figure_1_candidate_and_decay.png`](figures/reference/figure_1_candidate_and_decay.png):
+  the composite candidate and the continuous decay margin on log scales;
+- [`figure_2_trajectory_comparison.png`](figures/reference/figure_2_trajectory_comparison.png):
+  the displayed Lyapunov level and an independent `25x25` trajectory grid;
+- [`supplementary_figure_s1_trajectories.png`](figures/reference/supplementary_figure_s1_trajectories.png):
+  candidate values and actual derivatives along representative trajectories;
+- [`training_history.png`](figures/reference/training_history.png): the two
+  sequential training histories.
 
 ## System and homogeneous candidate
 

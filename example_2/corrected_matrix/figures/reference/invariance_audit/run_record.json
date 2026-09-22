@@ -1,0 +1,105 @@
+{
+  "surface_audit": {
+    "W_below_kappa_component_approximate_areas": [
+      0.012604069726202252,
+      0.04598035007794022,
+      0.010254158421317085
+    ],
+    "W_below_kappa_component_grid_sizes": [
+      1003,
+      3659,
+      816
+    ],
+    "W_below_kappa_components_touching_X_boundary": [
+      true,
+      false,
+      true
+    ],
+    "contour_grid_points_per_axis": 2001,
+    "detected_closed_level_components": 1,
+    "detected_components_of_W_below_kappa": 3,
+    "detected_level_components": 3,
+    "detected_level_points_outside_B_kappa": 1259,
+    "detected_open_or_boundary_touching_level_components": 2,
+    "interpretation": "finite-grid contour audit; not a continuous-domain invariance certificate",
+    "level_component_lengths": [
+      1.0017626774998196,
+      1.8944342888513224,
+      0.8871757494211229
+    ],
+    "level_component_point_counts": [
+      404,
+      757,
+      358
+    ],
+    "level_components": [
+      {
+        "angle_max": -2.7763736658988445,
+        "angle_min": -3.141592653589793,
+        "closed_on_extraction_grid": false,
+        "component_id": 0,
+        "length": 1.0017626774998196,
+        "maximum_DW_F_learned": -0.013158600100747764,
+        "maximum_DW_F_local": 6.467728407232753,
+        "maximum_V_local": 28.711074943157715,
+        "minimum_V_local": 22.173574756725785,
+        "nonnegative_DW_F_learned_fraction": 0.0,
+        "nonnegative_DW_F_local_fraction": 0.5148514851485149,
+        "point_count": 404,
+        "velocity_max": -2.2725938422917413,
+        "velocity_min": -2.6399624527154697
+      },
+      {
+        "angle_max": 0.40992044242300213,
+        "angle_min": -0.3985913333723169,
+        "closed_on_extraction_grid": true,
+        "component_id": 1,
+        "length": 1.8944342888513224,
+        "maximum_DW_F_learned": 0.04593916716954357,
+        "maximum_DW_F_local": 1.3667590502938838,
+        "maximum_V_local": 0.42798076207148267,
+        "minimum_V_local": 0.00019803079279401484,
+        "nonnegative_DW_F_learned_fraction": 0.1202113606340819,
+        "nonnegative_DW_F_local_fraction": 0.46895640686922063,
+        "point_count": 757,
+        "velocity_max": 0.24532028376383672,
+        "velocity_min": -0.23853865555386972
+      },
+      {
+        "angle_max": 3.141592653589793,
+        "angle_min": 2.814901826230971,
+        "closed_on_extraction_grid": false,
+        "component_id": 2,
+        "length": 0.8871757494211229,
+        "maximum_DW_F_learned": -0.02591157534738997,
+        "maximum_DW_F_local": 6.84198862297304,
+        "maximum_V_local": 28.622806909558232,
+        "minimum_V_local": 22.763963232364265,
+        "nonnegative_DW_F_learned_fraction": 0.0,
+        "nonnegative_DW_F_local_fraction": 0.5167597765363129,
+        "point_count": 358,
+        "velocity_max": 2.6220470756729357,
+        "velocity_min": 2.2998678616932104
+      }
+    ],
+    "maximum_DW_F_learned_on_detected_level": 0.04593916716954357,
+    "maximum_DW_F_local_on_detected_level": 6.84198862297304,
+    "maximum_V_local_on_detected_level": 28.711074943157715,
+    "maximum_abs_W_minus_kappa_after_refinement": 3.4903655965479174e-08,
+    "maximum_periodic_edge_W_mismatch": 129.50361734750715,
+    "maximum_periodic_edge_learned_control_mismatch": 5.898687657652393,
+    "minimum_DW_F_learned_on_detected_level": -0.23402930765928842,
+    "minimum_DW_F_local_on_detected_level": -7.136748684639386,
+    "minimum_V_local_on_detected_level": 0.00019803079279401484,
+    "minimum_gradient_norm_on_detected_level": 0.04237647890954187,
+    "nonnegative_DW_F_learned_fraction_on_detected_level": 0.059907834101382486,
+    "nonnegative_DW_F_learned_points_on_detected_level": 91,
+    "nonnegative_DW_F_local_fraction_on_detected_level": 0.4924292297564187,
+    "origin_W_below_kappa_component_label": 2,
+    "positive_DW_F_local_points_on_detected_level": 748
+  },
+  "training": {
+    "model_source": "example_2/corrected_matrix/figures/reference/invariance_audit/model_state.pt",
+    "training_not_repeated": true
+  }
+}
