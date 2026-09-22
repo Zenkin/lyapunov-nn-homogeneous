@@ -9,5 +9,6 @@ The three preceding branch tips form one ancestry chain:
 | `example-2-article-version` | [`a76a173`](https://github.com/Zenkin/lyapunov-nn-homogeneous/commit/a76a17390b4282ca7dab37546c8e4c9b91f6c186) | Adds Example 2's article implementation |
 | `example-2-corrected-matrix-only` | [`d87c896`](https://github.com/Zenkin/lyapunov-nn-homogeneous/commit/d87c896ecb739ce6214a46855508f25620046ef8) | Adds corrections, extensions, and recorded results |
 
-Both experiment branches and their complete history are retained. These are
-repository snapshots, not identified manuscript-submission versions.
+The merged branches have been removed; all their commits remain in `main`.
+The table records repository snapshots, not identified manuscript-submission
+versions.
