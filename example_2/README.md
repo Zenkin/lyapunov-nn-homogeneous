@@ -1,15 +1,11 @@
-# Example 2: local stabilization
+# Example 2: pendulum stabilization
 
-The second numerical example considers stabilization of the upper equilibrium
-of a nonlinear pendulum. The implementations are separated according to how
-the linear model printed in the article is treated.
+Stabilization of the upper equilibrium of a nonlinear pendulum.
 
-| Version | Status |
+| Version | Construction |
 | --- | --- |
-| [`article_version`](article_version) | Literal implementation of the equations printed in the article, including its displayed matrix `A` |
-| [`corrected_matrix`](corrected_matrix) | Controlled reruns with corrected `A`, first with frozen `K,P` and then with a consistently recomputed `P` |
-| [`improved`](improved) | Smooth periodic local-to-neural extension, sampled Lyapunov sublevel, and closed-loop trajectory comparison |
+| [`article_version`](article_version) | Printed equations, including the displayed matrix `A` |
+| [`corrected_matrix`](corrected_matrix) | Corrected `A`, with frozen `K,P` and then recomputed `P` |
+| [`improved`](improved) | Smooth periodic candidate and feedback, with a sampled Lyapunov sublevel |
 
-The article does not report all numerical parameters needed to rerun the
-training. Each implementation therefore distinguishes values taken from the
-article from later, explicitly documented implementation choices.
+Each folder documents its numerical choices and validation results.

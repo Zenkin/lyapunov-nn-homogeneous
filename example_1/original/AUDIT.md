@@ -1,8 +1,6 @@
 # Validation record: minimum-gluing baseline
 
-This file records the independent finite-grid checks for the reference
-implementation. It separates properties verified by identities or tests from
-properties observed only on sampled points.
+Independent finite-grid checks for the minimum-gluing implementation.
 
 ## Deterministic checks
 
@@ -83,7 +81,7 @@ The normal run reports these checks and exits nonzero.
 
 ## Additional experiments
 
-The following alternatives were evaluated when fixing the dry-friction convention:
+Additional experiments used:
 
 - a Cartesian `100 x 100` grid, which undersampled a thin region near `z2=0`;
 - a free output bias in the square map;
@@ -102,7 +100,6 @@ networks.
 
 ## Interpretation
 
-The baseline reproduces the structure of the published minimum-gluing method
-with explicitly documented numerical choices. It provides a useful reference
-for comparing architectures. The recorded run is not presented as a
-violation-free Lyapunov certificate for the complete united candidate.
+The recorded candidate fails some sampled decay and dominance conditions.
+This run therefore does not establish a Lyapunov certificate for the united
+candidate.

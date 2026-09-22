@@ -1,24 +1,16 @@
-# Reproducing the experiments
+# Reproducibility
 
-Install the root `requirements.txt` in a Python 3.12 virtual environment as
-described in the [README](../README.md). Run every command below from the
-repository root. CPU execution is sufficient; no external dataset is required.
+Complete the [setup](../README.md#setup), then run the commands below from the
+repository root. No external dataset is needed.
 
-## Implementation tests
+## Tests and short runs
 
 ```bash
 python -m unittest discover -v
 ```
 
-This discovers the test modules in all five implementations, including the
-corrected-matrix controls. Tests check the implemented equations, derivatives,
-local designs, and related numerical identities. Passing tests do not imply
-that a trained candidate satisfies every Lyapunov condition.
-
-## Short installation checks
-
-Each entry point supports `--quick`. Explicit output paths keep quick runs
-separate from full runs and from the committed reference records:
+The tests check the equations, derivatives, and local designs. Short runs check
+training and output generation with reduced grids and iteration counts:
 
 ```bash
 python -m example_1.original.example1 --quick --outdir example_1/original/results/quick
@@ -28,15 +20,10 @@ python -m example_2.corrected_matrix.example2 --quick --outdir example_2/correct
 python -m example_2.improved.example2 --quick --outdir example_2/improved/results/quick
 ```
 
-Quick runs deliberately reduce training and grid sizes; they do not reproduce
-the reference metrics. The continuous-integration workflow runs the unit tests,
-all five quick commands, and checks the publication tables. It does not
-retrain the full reference models.
+CI runs these checks and verifies the summary tables on Linux and Windows.
+Short-run metrics are not reference results.
 
 ## Full runs
-
-Choose the version using the [experiment map](../README.md#guide-to-the-experiments).
-These commands use each implementation's recorded default configuration:
 
 ```bash
 python -m example_1.original.example1 --outdir example_1/original/results/reference
@@ -46,48 +33,38 @@ python -m example_2.corrected_matrix.example2 --outdir example_2/corrected_matri
 python -m example_2.improved.example2 --outdir example_2/improved/results/reference
 ```
 
-The corrected-matrix command produces both `matrix_only` and
-`consistent_local_design` subdirectories. Its additional switching and
-boundary-matching experiments are described in its
-[README](../example_2/corrected_matrix/README.md).
+The corrected-matrix run creates `matrix_only` and `consistent_local_design`
+subdirectories. See its [README](../example_2/corrected_matrix/README.md) for
+additional switching and boundary checks.
 
-Both Example 1 implementations save their output before reporting a failed
-full-run audit with a nonzero exit. The original version's known violations
-are documented in its [audit](../example_1/original/AUDIT.md). Example 2 records
-its numerical checks in `run_record.json`; a successful process exit alone is
-not a certificate of stability.
+Example 1 saves its results and exits nonzero if a full-run audit fails. The
+original variant has [known violations](../example_1/original/AUDIT.md).
+Example 2 reports its checks in `run_record.json`; inspect these separately
+from the process exit status.
 
-The saved improved reference runs use seed `20260820`, CPU PyTorch, and one
-thread. Exact software versions and measured run times are in the
-[execution-environment table](../publication/reference/execution_environment.csv).
-Floating-point results can differ across platforms. Compare the recorded
-configuration and numerical conditions as well as the resulting figures.
+The improved reference runs use seed `20260820` and CPU PyTorch with one
+intra-op and one inter-op thread. Versions and timings are in the
+[environment table](../publication/reference/execution_environment.csv).
+A fixed seed does not guarantee identical results across platforms.
 
-## Outputs and committed evidence
+## Output
 
-| Location | Role |
-| --- | --- |
-| `example_*/<version>/figures/reference/` | Committed figures, JSON records, and available weights |
-| `example_*/<version>/results/` | Ignored local runs, including newly generated arrays and figures |
-| `publication/reference/` | Committed tables derived from the improved examples' JSON records |
-| `publication/results/` | Ignored local regeneration of those tables |
+- `example_*/<version>/figures/reference/`: saved figures, JSON records, and
+  available weights. Example 1's original variant has no saved artifacts;
+  Example 2's article variant has figures and a run record but no saved weights.
+- `example_*/<version>/results/`: local runs, excluded from Git.
+- `publication/reference/`: summary tables for the improved variants.
 
-The repository retains selected reference artifacts rather than every output
-of every experiment. In particular, the original Example 1 has a textual
-audit, and the article-version Example 2 has figures and a JSON record but no
-committed weights. The run commands generate the available detailed numerical
-arrays locally. Consult each implementation's README for its precise outputs.
+The run commands also generate numerical arrays for pointwise inspection.
 
-## Regenerate tables without training
+## Summary tables
 
-This command reads the committed improved-example records using only the
-Python standard library:
+Regenerate the tables from the committed JSON records without training:
 
 ```bash
 python publication/make_summary.py --outdir publication/results/reproduced
 ```
 
-Compare the four generated files with [`publication/reference`](../publication/reference).
-They summarize the **improved** examples, not the literal article constructions.
-To compare a new run instead, use `--example-1` and `--example-2` to select its
-JSON records; the Example 1 `config.json` must be beside its `metrics.json`.
+Compare the four output files with [`publication/reference`](../publication/reference).
+To summarize new runs, pass `--example-1` and `--example-2` with their JSON
+paths. Example 1's `config.json` must be beside its `metrics.json`.

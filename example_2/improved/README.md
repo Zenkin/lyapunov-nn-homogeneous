@@ -1,13 +1,9 @@
 # Smooth neural extension of Example 2
 
-This implementation retains the principle of Section IV-B: a verified local
-Lyapunov design is extended by a neural Lyapunov term and a neural controller.
-The extension is joined through the known local level sets rather than through
-a learned switching condition.
+This extension joins a local Lyapunov design to a neural candidate and
+controller through the local level sets.
 
-The hidden layers use the hyperbolic tangent. The `positive_part` helper in the
-loss implements the article's bracket `[s]_+=max(0,s)`; it is not a ReLU
-activation in either network.
+The hidden layers use `tanh`; the loss uses `[s]_+=max(0,s)`.
 
 ## Composite construction
 
@@ -30,10 +26,10 @@ V_NN = (1-s) V_l + s (V_p + W),
 u    = (1-s) Kx  + s N(x).
 ```
 
-The smoothstep and its first derivative vanish at the endpoints. Therefore the
-joined candidate is continuously differentiable, the control is continuous,
-and the local formulas are recovered exactly on `V_l<=kappa`. The outer neural
-maps use the periodic features
+The smoothstep has endpoint values 0 and 1 and zero derivative at both
+endpoints. The candidate is continuously differentiable, the control is
+continuous, and both recover the local formulas on `V_l<=kappa`.
+The outer networks use the periodic features
 
 ```text
 (sin(theta), 1-cos(theta), theta_dot/4).
@@ -46,20 +42,17 @@ The trained pointwise expression is
 epsilon = 0.05.
 ```
 
-Thus the simulation uses the positive margin
-`-[W-epsilon]_-=[epsilon-W]_+`, not the identically zero term `-[W]_-` from
-the basic loss (10). Positive definiteness of the composite candidate does not
-depend on moving an exact zero of `W`: the fixed terms `V_l` and `V_p` provide
-the positive base, while `W=T^T T` remains a nonnegative neural extension.
+The fixed terms `V_l` and `V_p` make the composite positive definite;
+`W=T^T T` is nonnegative. The epsilon penalty and its gradient at zero are
+discussed in the [audit](AUDIT.md#loss-and-exact-zero).
 
 ## Reproduce
 
-From the repository root:
+After [setup](../../README.md#setup), run from the repository root:
 
 ```bash
 python -m unittest example_2.improved.test_example2
-python -m example_2.improved.example2 \
-  --outdir example_2/improved/results/reference
+python -m example_2.improved.example2 --outdir example_2/improved/results/reference
 ```
 
 The deterministic reference run uses a `100x100` training midpoint grid,
@@ -72,7 +65,7 @@ the same mean, worst-5% tail, and control-regularization weights.
 
 ## Recorded result
 
-The first numerically refined contact with `dV_NN/dt=0` occurs at
+A grid-seeded local minimization of `V_NN` on `dV_NN/dt=0` gives
 
 ```text
 V_NN = 3.4369631633566,
@@ -90,14 +83,10 @@ origin-connected component of `V_NN<=c`. The component does not touch the
 velocity boundary. This is a grid-seeded numerical estimate, not a
 continuous-domain certificate between samples.
 
-All `525/525` trajectories on the declared periodic initial-condition grid
-reach `V_l<=1e-4` by `t=40`. Of these trajectories, 313 cross at least one of
-the lines `theta=+-pi/2` with nonzero angular velocity. The count at `t=20` is
-`524/525` for integration steps `0.02`, `0.01`, and `0.005`; the remaining
-trajectory reaches the target when the horizon is extended to `t=40`.
-All 3 sampled initial conditions in `0.95c<=V_NN<=c` and all 10 sampled
-conditions in `c<V_NN<=1.05c` also reach the target. The latter are empirical
-results outside the Lyapunov-audited component, not certificate points.
+All `525/525` sampled trajectories reach `V_l<=1e-4` by `t=40`.
+Of these, 181 leave the training velocity interval before converging; their
+success is an extrapolation result. The [audit](AUDIT.md#trajectories) gives
+the initial conditions, step-size comparison, and boundary-band checks.
 
 The committed figures are:
 

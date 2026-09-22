@@ -2,7 +2,7 @@
 
 ## Scope
 
-The purpose of this experiment is to isolate the matrix correction. It reuses
+This experiment isolates the matrix correction. It reuses
 the article-version nonlinear field, networks, pointwise loss, mean reduction,
 optimizer, seed, grid convention, `kappa`, `epsilon`, and `W`-based switching
 rule without modification.
@@ -140,10 +140,9 @@ The maximum absolute discrepancies were `1.88e-8` for the local field and
 `1.81e-10` for the learned field. This checks the derivative implementation;
 it does not address unsampled points or certify invariance.
 
-## Inherited limitations deliberately retained
+## Validation limits
 
-This controlled run retains two known bookkeeping/validation limitations of
-`article_version` so that the matrix is the only changed mathematical input:
+As in `article_version`:
 
 1. the `201 x 201` validation grid contains the `100 x 100` midpoint training
    grid as a subset and is not an independent sample;
@@ -154,9 +153,7 @@ Neither run is a continuous-domain Lyapunov certificate.
 
 ## Exploratory controller-domain alignment
 
-The following experiments are not requirements stated by the article. They
-are retained as explicitly exploratory diagnostics performed after the
-literal switching-surface audit.
+The following diagnostics add conditions not specified in the article.
 
 For the printed switch to use the local controller only where its local check
 is made, and the neural controller only where its loss is trained, the sets

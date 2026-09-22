@@ -1,38 +1,23 @@
 # Original minimum-gluing construction
 
-This folder contains the authors' public implementation of the construction
-presented in equations (9), (11), (12), and (16) of the article. It combines
+Implementation of equations (9), (11), (12), and (16). It combines
 an `r=(1,2)` homogeneous candidate at infinity with a one-hidden-layer square
 candidate on `B_(2 kappa) \ X` through a pointwise minimum.
 
-The code is a cleaned, self-contained public implementation rather than an
-archival snapshot of the working code used while preparing the article.
-Numerical choices not fixed in the article are stated below and written to
-`config.json` on every run.
+Numerical choices not specified in the article are listed below and saved in
+`config.json`. This implementation does not reconstruct the historical run.
 
 ## Run
 
-From the repository root:
+After [setup](../../README.md#setup), run from the repository root:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-python -m pip install -r example_1/original/requirements.txt
-
-python example_1/original/example1.py \
-  --outdir example_1/original/results/reference
+python -m example_1.original.example1 --outdir example_1/original/results/reference
 python -m unittest example_1.original.test_example1
 ```
 
-For a short installation check:
-
-```bash
-python example_1/original/example1.py --quick \
-  --outdir example_1/original/results/quick
-```
-
-The quick mode is a smoke test only. A normal run applies the full validation
-checks and exits nonzero if any of them is not satisfied.
+Use `--quick` for an installation check. A full run saves its output and exits
+nonzero if any validation check fails.
 
 ## System
 
@@ -50,8 +35,7 @@ The article specifies
 a1=1, a2=2, a3=1, c1=1, c2=2.
 ```
 
-The bounded dry-friction law used in this public implementation comes from the
-authors' earlier `dev_w` development branch:
+The bounded dry-friction law used here is
 
 ```text
 phi(v) = 0.8 tanh(v/0.5).
@@ -121,7 +105,3 @@ conditions. On the independent validation grids, the united baseline retains
 a small set of decay violations and does not satisfy the inner-dominance
 condition everywhere. The exact values and the tested alternatives are kept in
 [`AUDIT.md`](AUDIT.md).
-
-The original implementation remains useful because it isolates the effect of
-the minimum-gluing rule presented in the article and provides a direct
-comparison for the improved version.
