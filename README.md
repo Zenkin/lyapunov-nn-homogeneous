@@ -89,7 +89,7 @@ The committed records and figures can be reviewed without training a model:
 | Example 2, improved: figures, run record, and weights | [`example_2/improved/figures/reference`](example_2/improved/figures/reference) |
 | Improved examples: training protocol, numerical checks, and environments | [`publication/reference`](publication/reference) |
 
-New runs write to ignored `results/` directories within each implementation.
+The documented commands write to ignored `results/` directories within each implementation.
 The committed `figures/reference/` directories retain the published records.
 
 ## Interpretation of the numerical checks

@@ -29,8 +29,9 @@ python -m example_2.improved.example2 --quick --outdir example_2/improved/result
 ```
 
 Quick runs deliberately reduce training and grid sizes; they do not reproduce
-the reference metrics. The continuous-integration workflow runs the unit tests
-and verifies the publication tables, without retraining the reference models.
+the reference metrics. The continuous-integration workflow runs the unit tests,
+all five quick commands, and checks the publication tables. It does not
+retrain the full reference models.
 
 ## Full runs
 

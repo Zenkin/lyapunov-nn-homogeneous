@@ -33,6 +33,16 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Run all implementation tests
         run: python -m unittest discover -v
+      - name: Smoke test Example 1 / original
+        run: python -m example_1.original.example1 --quick --outdir example_1/original/results/quick
+      - name: Smoke test Example 1 / improved
+        run: python -m example_1.improved.example1 --quick --outdir example_1/improved/results/quick
+      - name: Smoke test Example 2 / article version
+        run: python -m example_2.article_version.example2 --quick --outdir example_2/article_version/results/quick
+      - name: Smoke test Example 2 / corrected matrix
+        run: python -m example_2.corrected_matrix.example2 --quick --outdir example_2/corrected_matrix/results/quick
+      - name: Smoke test Example 2 / improved
+        run: python -m example_2.improved.example2 --quick --outdir example_2/improved/results/quick
       - name: Regenerate publication tables from committed records
         run: python publication/make_summary.py
       - name: Check that published tables match their source records
