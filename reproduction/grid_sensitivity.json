@@ -1,0 +1,16 @@
+[
+  {
+    "grid": 801,
+    "points_in_audit_set": 313398,
+    "maximum_derivative": -0.044112353225850554,
+    "nonnegative_derivatives": 0,
+    "minimum_value": 0.01292485504342661
+  },
+  {
+    "grid": 1201,
+    "points_in_audit_set": 704342,
+    "maximum_derivative": -0.04590271253417558,
+    "nonnegative_derivatives": 0,
+    "minimum_value": 0.01344539592256877
+  }
+]

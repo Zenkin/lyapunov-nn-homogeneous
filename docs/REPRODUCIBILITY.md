@@ -3,6 +3,18 @@
 Complete the [setup](../README.md#setup), then run the commands below from the
 repository root. No external dataset is needed.
 
+## Saved-checkpoint reproduction
+
+```bash
+python reproduction/reproduce.py --outdir results/reproduced
+```
+
+On Windows, `START.cmd` performs setup and selects this mode by default.
+The run verifies checkpoint hashes, recalculates the grids and trajectories,
+and exits nonzero if a numerical regression check fails. The output directory
+must not already exist. See the [protocol](../reproduction/README.md) for the
+two checkpoint sources and plotting domains.
+
 ## Tests and short runs
 
 ```bash
@@ -20,7 +32,8 @@ python -m example_2.corrected_matrix.example2 --quick --outdir example_2/correct
 python -m example_2.improved.example2 --quick --outdir example_2/improved/results/quick
 ```
 
-CI runs these checks and verifies the summary tables on Linux and Windows.
+CI runs these checks, saved-checkpoint reproduction, and the summary-table
+checks on Linux and Windows.
 Short-run metrics are not reference results.
 
 ## Full runs

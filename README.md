@@ -3,6 +3,23 @@
 Code for *A neural network-based stability analysis and stabilization through
 homogeneous approximations*.
 
+## Reproduce the figures
+
+On Windows, double-click **START.cmd** and press Enter. It installs Python 3.12
+and the pinned dependencies if needed, then recalculates both improved examples
+from preserved trained weights. Training is a separate menu option.
+
+On Linux or an existing Python environment, complete the setup below and run:
+
+```bash
+python reproduction/reproduce.py --outdir results/reproduced
+```
+
+The run checks the numerical results and saves five figures, arrays, and
+`verification.json`. See the [figures and protocol](reproduction/README.md),
+or open `RESULTS.html` locally for the saved gallery. Short `--quick` runs only
+test installation and do not reproduce these results.
+
 ## Examples
 
 | Implementation | Method | Validation |
@@ -57,6 +74,11 @@ Saved figures, records, and available weights are under `figures/reference/`
 in each implementation folder. Example 1's original variant has a textual
 audit only. [Summary tables](publication/reference/reproducibility_summary.md)
 cover the two improved variants, including their execution environments.
+
+Two pendulum checkpoints are preserved: the [reproduced figures](reproduction/README.md)
+use `d22b775` (c=3.466; 343/182 trajectories stay/leave the validation domain).
+The later `figures/reference/` checkpoint and the summary tables use `d87c896`
+(c=3.436; 344/181). Their records describe separate runs.
 
 The recorded runs of the original implementations retain derivative-sign
 violations at sampled points. The

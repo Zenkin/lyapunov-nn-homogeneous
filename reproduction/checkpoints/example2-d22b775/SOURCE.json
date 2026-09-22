@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/Zenkin/lyapunov-nn-homogeneous",
+  "commit": "d22b77521e982a8836387f115a56f1433c8aa20a",
+  "files_sha256": {
+    "model_state.pt": "a332d0ca172e59f458257f7d4f6eea1fa84f854a6c3b36f42c8d95473545dd5f",
+    "run_record.json": "c34ef0e58a7fbe1c7358373ed0c3ee6eb4a37b30826bf35bd854639a8a986c43",
+    "improved_audit.png": "68bf83ce6fc851841e0d8fd7286204ef9913719251970cdd5eafd8298eb25df3",
+    "trajectory_diagnostic.png": "7c1ec63652ce8137822a498b4d2363d22a6f99e020ee8be3cfae550379015141",
+    "loss_of_authority_crossing.png": "1023e5fce7e0253135c6fa5adc3a519079d1e2fc0c84ed3ed5ae47c35cad9a24"
+  }
+}

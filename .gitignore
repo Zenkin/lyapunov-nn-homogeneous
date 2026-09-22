@@ -53,6 +53,7 @@ coverage.xml
 cover/
 
 # Numerical experiment outputs
+/results/
 example_1/*/results/
 example_2/*/results/
 publication/results/

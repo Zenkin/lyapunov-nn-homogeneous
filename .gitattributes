@@ -1,0 +1,5 @@
+# Preserve the exact bytes recorded in checkpoint provenance manifests.
+reproduction/checkpoints/** -text
+START.cmd text eol=crlf
+launcher/*.ps1 text eol=crlf
+reproduction/reference/*.svg linguist-generated=true -diff

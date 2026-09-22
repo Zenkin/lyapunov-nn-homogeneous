@@ -1,0 +1,477 @@
+{
+  "all_checks_passed": true,
+  "checkpoint_sha256": {
+    "example_1/improved/figures/reference/models.pt": "d1f509e2b5e3a4a1eb70a0773db93492e7a0f2f518e3fb1ea8ec482ebd267176",
+    "reproduction/checkpoints/example2-d22b775/model_state.pt": "a332d0ca172e59f458257f7d4f6eea1fa84f854a6c3b36f42c8d95473545dd5f"
+  },
+  "checks": {
+    "example1_all_625_reach_X_at_20": true,
+    "example1_derivative_matches_autograd": true,
+    "example1_paper_250_inside": true,
+    "example1_paper_audit_decay": true,
+    "example1_validation_decay": true,
+    "example1_validation_matches_saved_maximum": true,
+    "example1_validation_positive": true,
+    "example2_343_stay_in_domain": true,
+    "example2_all_525_reach_target": true,
+    "example2_component_matches_historical_maximum": true,
+    "example2_high_resolution_component_decay": true,
+    "example2_level_matches_historical_record": true,
+    "example2_primary_component_decay": true
+  },
+  "example1": {
+    "config": {
+      "history_every": 100,
+      "homogeneous_hidden": 32,
+      "homogeneous_learning_rate": 0.001,
+      "homogeneous_steps": 5000,
+      "homogeneous_train_points": 2048,
+      "homogeneous_validation_points": 8192,
+      "kappa_padding": 1.01,
+      "log_every": 500,
+      "outer_decay_margin": 0.05,
+      "outer_fixed_quadratic": 0.001,
+      "outer_grid_points_per_axis": 100,
+      "outer_hidden": 32,
+      "outer_learning_rate": 0.001,
+      "outer_steps": 12000,
+      "outer_validation_points_per_axis": 200,
+      "radial_angles": 512,
+      "radial_max": 8.0,
+      "radial_min": 0.25,
+      "radial_points": 256,
+      "seed": 20260820,
+      "trajectory_final_time": 20.0,
+      "trajectory_step": 0.01,
+      "trajectory_z1_points": 25,
+      "trajectory_z2_points": 25
+    },
+    "paper": {
+      "initial_inside": 250,
+      "initial_outside": 375,
+      "kappa": 9.201080709618669,
+      "maximum_derivative_in_audit_set": -0.049180383253362325,
+      "nonnegative_derivatives": 0,
+      "plot_grid": "401 x 401 cell midpoints in [-3.5,3.5] x [-12,12]",
+      "selected_initial_states": [
+        [
+          3.0,
+          -1.0
+        ],
+        [
+          1.3333333333333333,
+          4.0
+        ]
+      ],
+      "selected_initial_values": [
+        18.023152812772242,
+        18.410859037810972
+      ],
+      "selected_integration_step": 0.005
+    },
+    "system": {
+      "a1": 1.0,
+      "a2": 2.0,
+      "a3": 1.0,
+      "c1": 1.0,
+      "c2": 2.0,
+      "friction_amplitude": 0.8,
+      "friction_velocity": 0.5
+    },
+    "trajectories": {
+      "final_time": 20.0,
+      "finite_trajectories": 625,
+      "initial_condition_grid": "25x25 boundary-including Cartesian grid",
+      "initial_conditions": 625,
+      "initial_conditions_in_V_inf_le_2kappa": 250,
+      "integration_method": "classical RK4",
+      "integration_step": 0.01,
+      "interpretation": "empirical fixed-step finite-horizon convergence check to the compact set X; not an attraction-domain proof",
+      "success_fraction": 1.0,
+      "successful_initial_conditions_in_V_inf_le_2kappa": 250,
+      "trajectories_entering_X": 625,
+      "trajectories_in_X_at_final_time": 625,
+      "trajectories_leaving_X_after_first_entry": 51
+    },
+    "trajectory_rectangle": [
+      4,
+      12
+    ],
+    "validation": {
+      "exact_velocity_axis_forward_difference": {
+        "axis_points": 1920,
+        "maximum_forward_quotient_at_smallest_step": -0.08368260312474618,
+        "maximum_forward_quotient_by_step": [
+          -0.08367280149065848,
+          -0.08367987483585508,
+          -0.08368189579055496,
+          -0.08368260312474618
+        ],
+        "maximum_pointwise_change_between_two_smallest_steps": 0.026284203613499812,
+        "positive_steps": [
+          0.0001,
+          3e-05,
+          1e-05,
+          3e-06
+        ]
+      },
+      "independent_hinge_loss_with_training_margin": 4.685014868919054e-07,
+      "independent_training_margin_violation_fraction": 0.00016623568526043592,
+      "maximum_derivative_formula_disagreement": 3.751665644813329e-12,
+      "maximum_inner_boundary_identity_error": 0.0,
+      "maximum_outer_boundary_identity_error": 2.1316282072803006e-14,
+      "maximum_smooth_DV_f": -0.04414346562709257,
+      "maximum_smooth_DV_f_on_cartesian_grid": -0.05134973483000782,
+      "maximum_smooth_DV_f_on_level_angle_grid": -0.04414346562709257,
+      "maximum_smooth_DV_f_on_near_axis_grid": -0.09373390271227824,
+      "maximum_smooth_decay_DV_f_plus_V": 15.063430164361307,
+      "maximum_trained_decay_expression_with_margin": 0.005856534372907431,
+      "maximum_value_formula_disagreement": 0.0,
+      "minimum_inner_U": 0.012761223688969378,
+      "minimum_smooth_V": 0.012761223688969378,
+      "smooth_nonnegative_derivative_fraction": 0.0,
+      "smooth_nonpositive_fraction": 0.0,
+      "validation_cartesian_points": 10388,
+      "validation_level_angle_points": 37800,
+      "validation_near_velocity_axis_points": 5952,
+      "validation_points_in_B2kappa_minus_X": 54140,
+      "validation_transition_points": 29877
+    }
+  },
+  "example2": {
+    "config": {
+      "audit_validation_points_per_axis": 801,
+      "boundary_validation_points": 2048,
+      "control_weight": 1e-05,
+      "decay_rate": 0.1,
+      "epsilon": 0.05,
+      "history_every": 100,
+      "kappa": 0.05,
+      "learning_rate": 0.002,
+      "log_every": 500,
+      "roa_level_decimal_places": 3,
+      "roa_refinement_seed_count": 24,
+      "seed": 20260820,
+      "training_points_per_axis": 100,
+      "training_steps": 6000,
+      "trajectory_angle_points": 25,
+      "trajectory_final_time": 40.0,
+      "trajectory_step": 0.01,
+      "trajectory_target_level": 0.0001,
+      "trajectory_velocity_points": 21,
+      "transition_upper_multiplier": 2.0,
+      "validation_points_per_axis": 401,
+      "worst_fraction": 0.05,
+      "worst_weight": 2.0
+    },
+    "equilibria": {
+      "detected_equilibria": 4,
+      "equilibria": [
+        {
+          "field_residual": 1.5543122344752192e-15,
+          "jacobian": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              13.57815273577684,
+              -0.10805915270062293
+            ]
+          ],
+          "jacobian_eigenvalues": [
+            {
+              "imag": 0.0,
+              "real": 3.631221016336356
+            },
+            {
+              "imag": 0.0,
+              "real": -3.739280169036979
+            }
+          ],
+          "theta": -1.493280657088072
+        },
+        {
+          "field_residual": 0.0,
+          "jacobian": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              -1.0,
+              -3.0
+            ]
+          ],
+          "jacobian_eigenvalues": [
+            {
+              "imag": 0.0,
+              "real": -0.3819660112501051
+            },
+            {
+              "imag": 0.0,
+              "real": -2.618033988749895
+            }
+          ],
+          "theta": 0.0
+        },
+        {
+          "field_residual": 1.021405182655144e-14,
+          "jacobian": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              13.64168644135539,
+              -0.30050460882513186
+            ]
+          ],
+          "jacobian_eigenvalues": [
+            {
+              "imag": 0.0,
+              "real": 3.54626797773613
+            },
+            {
+              "imag": 0.0,
+              "real": -3.8467725865612623
+            }
+          ],
+          "theta": 1.4313954898237102
+        },
+        {
+          "field_residual": 8.215650382226158e-15,
+          "jacobian": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              -13.079457597656834,
+              0.14574337831286535
+            ]
+          ],
+          "jacobian_eigenvalues": [
+            {
+              "imag": 3.615819037863527,
+              "real": 0.07287168915643266
+            },
+            {
+              "imag": -3.615819037863527,
+              "real": 0.07287168915643266
+            }
+          ],
+          "theta": 1.7075779461107543
+        }
+      ],
+      "interpretation": "dense zero-velocity scan with bisection; not symbolic root isolation",
+      "scan_points": 20001
+    },
+    "high_resolution_validation": {
+      "full_domain": {
+        "maximum_dV": 0.6372272297929685,
+        "minimum_V": 3.3250155989985355e-05,
+        "nonnegative_dV_fraction": 0.003368142144638404,
+        "points": 641600,
+        "positive_decay_residual_fraction": 0.009961034912718204
+      },
+      "interpretation": "independent finite-sample check, not a theorem",
+      "local_domain": {
+        "maximum_dV": -6.152794855899755e-05,
+        "minimum_V": 3.3250155989985355e-05,
+        "nonnegative_dV_fraction": 0.0,
+        "points": 3342,
+        "positive_decay_residual_fraction": 0.0
+      },
+      "maximum_abs_VNN_minus_kappa_on_inner_boundary": 1.5265566588595902e-16,
+      "maximum_abs_control_difference_on_inner_boundary": 4.440892098500626e-16,
+      "maximum_periodic_edge_VNN_mismatch": 0.0,
+      "maximum_periodic_edge_control_mismatch": 0.0,
+      "maximum_raw_W_margin_violation_outside_B_kappa": 0.04990134095008327,
+      "maximum_transition_weight_on_inner_boundary": 2.3111159332646788e-29,
+      "minimum_raw_W_outside_B_kappa": 9.865904991673431e-05,
+      "objective_on_validation_points_outside_B_kappa": {
+        "combined_objective": 0.1694545393176488,
+        "control_regularization": 215.3029933961197,
+        "outer_mean": 0.00408053709369146,
+        "outer_worst_fraction": 0.08161048614499808
+      },
+      "outer_domain": {
+        "maximum_dV": 0.6372272297929685,
+        "minimum_V": 0.1183468264869743,
+        "nonnegative_dV_fraction": 0.0034035784035784038,
+        "points": 634920,
+        "positive_decay_residual_fraction": 0.010065835065835065
+      },
+      "raw_W_below_epsilon_fraction_outside_B_kappa": 0.0017391086363194822,
+      "roa_estimate": {
+        "c_conservative": 3.466,
+        "c_grid_pass": 3.470404207099066,
+        "component_validation_points": 75361,
+        "critical_refinement": {
+          "critical_level_estimate": 3.4664871442366207,
+          "critical_point_estimate": [
+            1.4681556876363955,
+            -0.2980136604271522
+          ],
+          "dV_at_critical_point": -9.39803790345195e-14,
+          "interpretation": "local constrained minimization of V subject to dV=0, seeded by the independent grid; numerical estimate, not root isolation",
+          "reported_conservative_level": 3.466,
+          "rounding_rule": "critical level rounded downward to 3 decimal places",
+          "successful_local_refinements": 24
+        },
+        "disconnected_sublevel_points": 0,
+        "interpretation": "origin-connected sampled sublevel at a locally refined critical level rounded downward; finite numerical estimate, not a continuous-domain proof",
+        "maximum_dV_in_component_except_target": -6.152794855899755e-05,
+        "minimum_V_in_component_except_target": 3.3250155989985355e-05,
+        "nonnegative_dV_points_in_component_except_target": 0,
+        "sublevel_validation_points": 75361,
+        "touches_validation_velocity_boundary": false
+      },
+      "transition_annulus": {
+        "maximum_dV": -0.030015928599167727,
+        "minimum_V": 0.05001166282916786,
+        "nonnegative_dV_fraction": 0.0,
+        "points": 3338,
+        "positive_decay_residual_fraction": 0.0
+      },
+      "validation_grid_convention": "801x801 cell midpoints",
+      "validation_grid_disjoint_from_training_grid": true,
+      "validation_points": 641601
+    },
+    "paper": {
+      "crossing_speed": 2.0813280961498566,
+      "crossing_time": 0.15060145560017135,
+      "level": 3.466,
+      "selected_initial_states": [
+        [
+          1.8849555921538759,
+          -2.0
+        ],
+        [
+          1.8849555921538759,
+          -1.6
+        ]
+      ],
+      "selected_initial_values": [
+        3.4645887355041762,
+        3.4871716833717237
+      ],
+      "selected_integration_step": 0.005
+    },
+    "trajectories": {
+      "final_time": 40.0,
+      "initial_condition_grid": "25x21; periodic angle endpoint counted once",
+      "initial_conditions": 525,
+      "initial_conditions_in_inner_boundary_band_0.95c_to_c": 6,
+      "initial_conditions_in_outer_boundary_band_c_to_1.05c": 7,
+      "initial_conditions_in_roa_grid_level": 59,
+      "integration_method": "classical RK4 with wrapped angle",
+      "integration_step": 0.01,
+      "interpretation": "empirical fixed-step trajectory check, not an ROA proof",
+      "maximum_absolute_velocity_over_trajectories": 8.155653435348857,
+      "maximum_final_V_local": 1.078937210235362e-08,
+      "minimum_crossing_speed_among_successful_crossings": 0.11110827052794986,
+      "nonfinite_trajectories": 0,
+      "roa_grid_level": 3.466,
+      "success_fraction": 1.0,
+      "successful_at_final_time": 525,
+      "successful_initial_conditions_in_inner_boundary_band": 6,
+      "successful_initial_conditions_in_outer_boundary_band": 7,
+      "successful_initial_conditions_in_roa_grid_level": 59,
+      "successful_trajectories_crossing_theta_plus_or_minus_pi_over_2": 313,
+      "successful_without_leaving_training_domain": 343,
+      "target_level_V_local": 0.0001,
+      "trajectories_crossing_theta_plus_or_minus_pi_over_2": 313,
+      "trajectories_entering_B_kappa": 525,
+      "trajectories_exceeding_training_velocity_domain": 182,
+      "trajectories_reaching_target_level": 525
+    },
+    "validation": {
+      "full_domain": {
+        "maximum_dV": 0.6337056599161833,
+        "minimum_V": 0.00013266915835929828,
+        "nonnegative_dV_fraction": 0.00333955223880597,
+        "points": 160800,
+        "positive_decay_residual_fraction": 0.009894278606965174
+      },
+      "interpretation": "independent finite-sample check, not a theorem",
+      "local_domain": {
+        "maximum_dV": -0.000245460791873169,
+        "minimum_V": 0.00013266915835929828,
+        "nonnegative_dV_fraction": 0.0,
+        "points": 836,
+        "positive_decay_residual_fraction": 0.0
+      },
+      "maximum_abs_VNN_minus_kappa_on_inner_boundary": 1.5265566588595902e-16,
+      "maximum_abs_control_difference_on_inner_boundary": 4.440892098500626e-16,
+      "maximum_periodic_edge_VNN_mismatch": 0.0,
+      "maximum_periodic_edge_control_mismatch": 0.0,
+      "maximum_raw_W_margin_violation_outside_B_kappa": 0.04894614064825251,
+      "maximum_transition_weight_on_inner_boundary": 2.3111159332646788e-29,
+      "minimum_raw_W_outside_B_kappa": 0.001053859351747491,
+      "objective_on_validation_points_outside_B_kappa": {
+        "combined_objective": 0.1693601627445105,
+        "control_regularization": 215.30175330252663,
+        "outer_mean": 0.004078621017929815,
+        "outer_worst_fraction": 0.08156426209677771
+      },
+      "outer_domain": {
+        "maximum_dV": 0.6337056599161833,
+        "minimum_V": 0.12196701800062963,
+        "nonnegative_dV_fraction": 0.0033747266282898873,
+        "points": 159124,
+        "positive_decay_residual_fraction": 0.009998491742289032
+      },
+      "raw_W_below_epsilon_fraction_outside_B_kappa": 0.0017128853992148232,
+      "roa_estimate": {
+        "c_conservative": 3.466,
+        "c_grid_pass": 3.4706384648991,
+        "component_validation_points": 18893,
+        "critical_refinement": {
+          "critical_level_estimate": 3.4664871442366376,
+          "critical_point_estimate": [
+            1.4681556877142976,
+            -0.29801366056269335
+          ],
+          "dV_at_critical_point": -2.0650148258027912e-14,
+          "interpretation": "local constrained minimization of V subject to dV=0, seeded by the independent grid; numerical estimate, not root isolation",
+          "reported_conservative_level": 3.466,
+          "rounding_rule": "critical level rounded downward to 3 decimal places",
+          "successful_local_refinements": 24
+        },
+        "disconnected_sublevel_points": 0,
+        "interpretation": "origin-connected sampled sublevel at a locally refined critical level rounded downward; finite numerical estimate, not a continuous-domain proof",
+        "maximum_dV_in_component_except_target": -0.000245460791873169,
+        "minimum_V_in_component_except_target": 0.00013266915835929828,
+        "nonnegative_dV_points_in_component_except_target": 0,
+        "selected_level": 3.466,
+        "sublevel_validation_points": 18893,
+        "touches_validation_velocity_boundary": false
+      },
+      "transition_annulus": {
+        "maximum_dV": -0.09210354617765903,
+        "minimum_V": 0.05015906607030486,
+        "nonnegative_dV_fraction": 0.0,
+        "points": 840,
+        "positive_decay_residual_fraction": 0.0
+      },
+      "validation_grid_convention": "401x401 cell midpoints",
+      "validation_grid_disjoint_from_training_grid": true,
+      "validation_points": 160801
+    }
+  },
+  "interpretation": "Finite-grid and finite-horizon observations, not a continuous-domain certificate.",
+  "mode": "checkpoint replay; no training",
+  "software": {
+    "matplotlib": "3.10.8",
+    "numpy": "2.3.5",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "python": "3.12.10",
+    "pytorch": "2.8.0+cpu",
+    "scipy": "1.16.1",
+    "torch_interop_threads": 1,
+    "torch_threads": 1
+  }
+}
