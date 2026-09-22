@@ -1,18 +1,14 @@
 # Improved smooth-gluing construction
 
-This folder contains a subsequent modification developed by the authors after
-revisiting the first numerical example. It preserves the homogeneous outer
-candidate and the central sphere-learning principle of the article, while
-changing two parts of the bounded-region construction:
+This extension preserves the homogeneous outer candidate and changes the
+bounded-region construction:
 
 1. the inner function is positive definite by parameterization;
 2. the pointwise minimum is replaced by a smooth transition between the level
    sets `V_inf=kappa` and `V_inf=2 kappa`.
 
-The complete candidate is differentiated during training, including the
-chain-rule term introduced by the transition weight. This version is an
-author-developed extension; it is not the minimum-gluing algorithm printed in
-the article.
+Training differentiates the complete candidate, including the transition
+weight. The article's minimum-gluing construction is in [`original`](../original).
 
 ## Recorded result
 
@@ -33,24 +29,14 @@ Detailed grids, formula checks, and limitations are listed in
 
 ## Run
 
-From the repository root:
+After [setup](../../README.md#setup), run from the repository root:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-python -m pip install -r example_1/improved/requirements.txt
-
-python example_1/improved/example1.py \
-  --outdir example_1/improved/results/reference
+python -m example_1.improved.example1 --outdir example_1/improved/results/reference
 python -m unittest example_1.improved.test_example1
 ```
 
-For a short installation check:
-
-```bash
-python example_1/improved/example1.py --quick \
-  --outdir example_1/improved/results/quick
-```
+Use `--quick` for an installation check.
 
 The run saves `config.json`, `metrics.json`, model weights, validation and
 trajectory arrays, the two-stage training history, and publication figures.
@@ -64,7 +50,7 @@ corresponding point set; mini-batches and early stopping are not used.
 The committed figures are:
 
 - [`figure_1_candidate_and_decay.png`](figures/reference/figure_1_candidate_and_decay.png):
-  the composite candidate and the continuous decay margin on log scales;
+  the composite candidate and sampled decay margin on log scales;
 - [`figure_2_trajectory_comparison.png`](figures/reference/figure_2_trajectory_comparison.png):
   the displayed Lyapunov level and an independent `25x25` trajectory grid;
 - [`supplementary_figure_s1_trajectories.png`](figures/reference/supplementary_figure_s1_trajectories.png):

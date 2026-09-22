@@ -2,12 +2,10 @@
 
 ## Scope
 
-The implementation keeps the article's local-plus-neural stabilization
-principle, but the smooth composite architecture, periodic base, corrected
-Jacobian, and numerical hyperparameters are later implementation choices.
-They are not attributed to the printed article.
+The smooth composite architecture, periodic base, corrected Jacobian, and
+numerical hyperparameters extend the article's local stabilization method.
 
-The conclusions have two different strengths:
+The checks cover:
 
 1. the local decay estimate and positivity of the composite architecture are
    analytic;
@@ -178,9 +176,8 @@ The time-horizon and step-size audit is
 | 0.005 | 20 | 524/525 |
 | 0.01 | 40 | 525/525 |
 
-The unchanged `t=20` count under step refinement indicates that the remaining
-state is slow rather than a time-discretization artifact. Extending the horizon
-to `t=40` brings it into the target level.
+All three step sizes give the same target count at `t=20`. With step `0.01`,
+the remaining trajectory reaches the target level by `t=40`.
 
 ## Loss-of-authority lines
 

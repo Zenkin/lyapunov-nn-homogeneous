@@ -1,8 +1,7 @@
 # Validation record: smooth-gluing variant
 
-This file records the numerical checks for the smooth-gluing implementation.
-The values below are evidence on stated finite grids; they are not a proof on
-a continuous or unbounded domain.
+Numerical checks on the grids specified below. Continuous-domain and
+unbounded-domain inequalities are not certified.
 
 ## Construction being checked
 
@@ -107,8 +106,7 @@ reserve-violation fraction   = 0.00016623568526043592
 worst reserve shortfall      = 0.0058565343729074515
 ```
 
-This does not change the observed strict sign `D V_smooth f<0`, but the reserve
-shortfall is retained here as part of the numerical record.
+The derivative remains negative, but misses the training margin at some points.
 
 Independent consistency checks give
 
@@ -187,9 +185,3 @@ is claimed.
    implementation choices introduced for this variant.
 7. Passing a finite grid does not certify inequalities between grid points or
    beyond the sampled radial range.
-
-Within this scope, the smooth-gluing variant has positive sampled values and
-strictly negative sampled directional derivatives outside `X`. It preserves
-the article's central construction—learning on the homogeneous sphere and
-uniting an outer homogeneous candidate with an inner neural candidate—while
-replacing the pointwise minimum by a differentiable transition.

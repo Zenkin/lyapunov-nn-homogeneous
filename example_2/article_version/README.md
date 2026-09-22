@@ -1,11 +1,8 @@
 # Article version: nonlinear-pendulum stabilization
 
-This folder contains the reference implementation of Section V-B of the
-article. It reproduces the displayed system, matrix `A`, network sizes,
-activation, pointwise loss, training-domain size, and switching inequality.
-It does not claim that the resulting numerical weights or plots are the
-historical data behind Figures 3 and 4, because the parameters needed to
-recover that run are not reported.
+Implementation of Section V-B: the printed system, matrix `A`, networks, loss,
+training domain, and switching rule. Additional numerical choices are listed
+below; the run does not reconstruct the original data behind Figures 3 and 4.
 
 ## Equations implemented
 
@@ -31,8 +28,7 @@ B         = [[0],
              [1]].
 ```
 
-No correction is silently applied. Direct differentiation of the displayed
-nonlinear field instead gives
+The Jacobian of the nonlinear field is
 
 ```text
 A_jacobian = [[0,       1],
@@ -59,35 +55,25 @@ zero-at-origin architecture and 20 hidden units. The pointwise loss is
 using the article's definitions `[s]_+=max(0,s)` and
 `[s]_-=min(0,s)`.
 
-## Run the deterministic checks
+## Run
 
-From the repository root:
+After [setup](../../README.md#setup), run from the repository root:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-python -m pip install -r example_2/article_version/requirements.txt
 python -m unittest example_2.article_version.test_example2
+python -m example_2.article_version.example2 --outdir example_2/article_version/results/reference
 ```
 
-Run the reference experiment and regenerate all figures:
+The full CPU run uses 5,000 Adam steps. Use `--quick` for an installation check.
 
-```bash
-python example_2/article_version/example2.py \
-  --outdir example_2/article_version/results/reference
-```
-
-The full deterministic CPU run performs 5,000 Adam steps. A short installation
-check is available with `--quick`; its output is not a reference result.
-
-## Explicit implementation choices
+## Numerical choices
 
 The article does not report `K`, `P`, `kappa`, `epsilon`, the optimizer,
 learning rate, epoch count, random seed, trained weights, or whether the
 uniform grid includes the boundary. These values affect the experiment and
 cannot be recovered from the displayed formulas.
 
-The current reproducible run uses
+The reference run uses
 
 ```text
 K       = [-2, -3]
@@ -110,16 +96,15 @@ so it is a denser check but not an independent sample.
 
 ![Learned candidate and switched derivative](figures/reference/combined_validation.png)
 
-Separate paper-ready PNG files are stored in
+Separate PNG files are stored in
 [`figures/reference`](figures/reference). The run also regenerates SVG versions
 and the underlying compressed arrays locally. The left panel shows the learned
 candidate `W`. The right panel shows its derivative under the switching rule
 printed in the article. The local quadratic levels and the actual neural
 switching contour are overlaid separately.
 
-This is intentionally not labelled as the article's "combined Lyapunov
-function": the control section does not give a formula for that function and
-states that it may differ from a combination of `W` and `V_l`.
+The plotted candidate is `W`. The article's control section does not specify
+a formula for a combined Lyapunov function.
 
 On the boundary-including finite grid, which overlaps the training grid:
 
@@ -132,10 +117,9 @@ max DW F under the printed switching rule = +3.6885728651168144
 fraction with switched derivative >= 0    = 0.0016089108910891088
 ```
 
-Thus the local quadratic check passes on the stated finite grid, while the
-learned and switched derivatives retain sparse sign violations. The images do
-not constitute a Lyapunov certificate. Exact reported metrics are in
+The local quadratic check passes on this grid; the learned and switched
+derivatives retain sign violations. Exact metrics are in
 [`run_record.json`](figures/reference/run_record.json); the command above
 regenerates `validation_arrays.npz` for pointwise inspection.
 
-See [`AUDIT.md`](AUDIT.md) for the source and consistency audit.
+See [`AUDIT.md`](AUDIT.md) for the matrix discrepancy and validation limits.
