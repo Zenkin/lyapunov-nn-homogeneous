@@ -55,6 +55,7 @@ cover/
 # Numerical experiment outputs
 example_1/*/results/
 example_2/*/results/
+publication/results/
 example_1/*/figures/**/*.svg
 example_1/*/figures/**/*.npz
 example_1/*/figures/**/combined_validation.png

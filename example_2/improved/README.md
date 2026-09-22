@@ -59,7 +59,7 @@ From the repository root:
 ```bash
 python -m unittest example_2.improved.test_example2
 python -m example_2.improved.example2 \
-  --outdir example_2/improved/figures/reference
+  --outdir example_2/improved/results/reference
 ```
 
 The deterministic reference run uses a `100x100` training midpoint grid,

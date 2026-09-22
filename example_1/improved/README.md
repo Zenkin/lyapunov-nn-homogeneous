@@ -41,7 +41,7 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 python -m pip install -r example_1/improved/requirements.txt
 
 python example_1/improved/example1.py \
-  --outdir example_1/improved/figures/reference
+  --outdir example_1/improved/results/reference
 python -m unittest example_1.improved.test_example1
 ```
 

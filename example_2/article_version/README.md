@@ -74,7 +74,7 @@ Run the reference experiment and regenerate all figures:
 
 ```bash
 python example_2/article_version/example2.py \
-  --outdir example_2/article_version/figures/reference
+  --outdir example_2/article_version/results/reference
 ```
 
 The full deterministic CPU run performs 5,000 Adam steps. A short installation
